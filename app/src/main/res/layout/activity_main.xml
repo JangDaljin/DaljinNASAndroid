@@ -1,0 +1,50 @@
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_centerInParent="true">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+
+            <TextView
+                    android:text="ID"
+                    android:gravity="center_vertical | center_horizontal"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="match_parent"/>
+            <EditText
+                    android:id="@+id/edt_ID"
+                    android:layout_width="0dp"
+                    android:layout_weight="8"
+                    android:layout_height="wrap_content"
+                    android:hint="아이디를 입력하세요"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+
+            <TextView
+                    android:text="PW"
+                    android:gravity="center_vertical | center_horizontal"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="match_parent"/>
+            <EditText
+                    android:id="@+id/edt_PW"
+                    android:layout_width="0dp"
+                    android:layout_weight="8"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:hint="********"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <Button android:id="@+id/btn_Signup" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="등록"/>
+            <Button android:id="@+id/btn_Login" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="로그인"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
+
+
+
