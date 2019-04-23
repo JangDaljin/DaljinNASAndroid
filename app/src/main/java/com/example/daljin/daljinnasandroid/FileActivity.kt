@@ -48,7 +48,7 @@ class FileActivity : AppCompatActivity() {
     }
 
     private fun getFileList() {
-        DRetrofitController.Instance.getFileList().enqueue(object : Callback<DInfomation> {
+        DRetrofit().getFileList().enqueue(object : Callback<DInfomation> {
             override fun onFailure(call: Call<DInfomation>, t: Throwable) {
                 Toast.makeText(this@FileActivity , "FAILURE" , Toast.LENGTH_SHORT).show()
 
