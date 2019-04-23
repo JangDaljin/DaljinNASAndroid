@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         btn_Login.setOnClickListener {
-            DRetrofit().login(DLoginInformation(edt_ID.text.toString() , edt_PW.text.toString())).enqueue(object :
+            DRetrofit(this@MainActivity).login(DLoginInformation(edt_ID.text.toString() , edt_PW.text.toString())).enqueue(object :
                 Callback<DSuccess> {
                     override fun onFailure(call: Call<DSuccess>, t: Throwable) {
                     Toast.makeText(this@MainActivity , "서버와 연결이 되지 않습니다." , Toast.LENGTH_LONG).show()
