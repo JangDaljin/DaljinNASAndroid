@@ -4,7 +4,6 @@ import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -98,8 +97,6 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
 
 fun DRetrofit(context : Context) : DRetrofitInterface
 {
-    val interceptor = HttpLoggingInterceptor()
-    interceptor.level = HttpLoggingInterceptor.Level.BODY
 
     val client = OkHttpClient().newBuilder()
         .addNetworkInterceptor(ReceivedCookiesInterceptor(context))
