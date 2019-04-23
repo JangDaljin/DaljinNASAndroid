@@ -31,8 +31,11 @@ class MainActivity : AppCompatActivity() {
                         when(response.body()?.RESULT){
                             null -> Toast.makeText(this@MainActivity , "값이 없습니다." , Toast.LENGTH_SHORT).show()
                             false -> Toast.makeText(this@MainActivity , "아이디 또는 비밀번호가 틀렸습니다." , Toast.LENGTH_SHORT).show()
-                            true -> startActivity(Intent(this@MainActivity , FileActivity::class.java))
-                            //else -> Log.d("DALJIN" , "ERROR")
+                            true -> {
+                                        setResult(RESULT_OK)
+                                        finish()
+                                    }
+
                         }
                     }
 
