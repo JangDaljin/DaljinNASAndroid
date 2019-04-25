@@ -13,10 +13,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.item_main.view.*
+import kotlinx.android.synthetic.main.sideheader.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,6 +29,8 @@ class FileActivity : AppCompatActivity() {
     private var path : String = ""
     private var usedStorage : Int = 0
     private var fileList = mutableListOf<DataItem>()
+
+    private lateinit var recyclerViewAdapter : RecyclerAdapter
 
     private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -70,7 +74,6 @@ class FileActivity : AppCompatActivity() {
                                 false -> startLoginActivity()
                             }
                         }
-                        startLoginActivity()
                     }
                 })
                 true
@@ -87,35 +90,61 @@ class FileActivity : AppCompatActivity() {
 
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
         navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
+
+        recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
+        recyclerViewAdapter = RecyclerAdapter(fileList)
+        recyclerView.adapter = recyclerViewAdapter
     }
 
     override fun onStart() {
         super.onStart()
-        getFileList()
+        invalidate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK) {
-            getFileList()
+            invalidate()
         }
     }
+
+
+
 
     private fun startLoginActivity() {
         startActivityForResult(Intent(this@FileActivity , LoginActivity::class.java),100)
     }
 
+    private fun invalidate() {
+
+        val sideHeaderInvalidate = {
+            sideHeaderID.text = DaljinNodeWebLoginData.id
+            sideHeaderGrade.text = DaljinNodeWebLoginData.grade
+            sideHeaderMaxStorage.text = DaljinNodeWebLoginData.maxStorage.toString()
+        }
+
+        if(!DaljinNodeWebLoginData.isAuthenticated) {
+            DaljinNodeWebLogin(this@FileActivity){
+                sideHeaderInvalidate
+            }
+        } else {
+            sideHeaderInvalidate
+        }
+
+
+        getFileList(path)
+    }
+
     private fun getFileList(newPath : String = "") {
-        Login(this@FileActivity) {}
 
         DRetrofit(this@FileActivity).getFileList("$newPath").enqueue(object : Callback<String> {
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Toast.makeText(this@FileActivity , "getFileList() FAIL" , Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@FileActivity , "getFileList() FAIL" , Toast.LENGTH_SHORT).show()
 
             }
 
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                Toast.makeText(this@FileActivity , "getFileList() SUCCESS" , Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@FileActivity , "getFileList() SUCCESS" , Toast.LENGTH_SHORT).show()
 
                 if(response.isSuccessful) {
                     val parser =  JSONObject(response.body())
@@ -126,6 +155,7 @@ class FileActivity : AppCompatActivity() {
                             startLoginActivity()
                         }
                         false -> {
+                            //리스트 초기화
                             fileList.clear()
 
                             //기본 저장 데이터
@@ -142,12 +172,13 @@ class FileActivity : AppCompatActivity() {
                                     ,file.getString("name")
                                     ,file.getString("extension")
                                     ,file.getString("fullname")
-                                    ,false
+                                    ,null
                                 )
                                 fileList.add(item)
                             }
-                            recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
-                            recyclerView.adapter = RecyclerAdapter(fileList)
+
+                            //리사이클러뷰 초기화
+                            recyclerViewAdapter.notifyDataSetChanged()
                         }
                     }
                 }
@@ -156,19 +187,7 @@ class FileActivity : AppCompatActivity() {
     }
 }
 
-fun fileSizeConverter(size : Int , count : Int = 0) : String =
-    if(size / 1024 == 0) {
-        "$size${when(count) {
-            0 -> "B"
-            1 -> "KB"
-            2 -> "MB"
-            3 -> "GB"
-            else -> "TB"
-        }}"
-    }
-    else {
-        fileSizeConverter(size / 1024 , count + 1)
-    }
+
 
 
 class DataItem( val size : String
@@ -177,7 +196,7 @@ class DataItem( val size : String
                 ,val name : String
                 ,val extension : String
                 ,val fullname : String
-                ,var checked : Boolean
+                ,var checkbox : CheckBox?
                 )
 
 private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
@@ -197,10 +216,15 @@ private class RecyclerAdapter(val list : MutableList<DataItem>) : RecyclerView.A
         val dataItem = list[position]
 
         var viewHolder = holder as ItemViewHolder
-        viewHolder.chbItem.setOnCheckedChangeListener {
-            buttonView, isChecked ->
-                list[position].checked = isChecked
+
+        list[position].checkbox = viewHolder.chbItem
+
+        when(dataItem.type) {
+            "directory" -> {
+
+            }
         }
+
         viewHolder.tvDate.text = dataItem.ctime
         viewHolder.tvName.text = dataItem.fullname
         viewHolder.tvSize.text = dataItem.size
