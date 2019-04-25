@@ -1,6 +1,7 @@
 package com.example.daljin.daljinnasandroid
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -25,11 +26,11 @@ import retrofit2.Response
 
 class FileActivity : AppCompatActivity() {
 
-    private var path : String = ""
-    private var usedStorage : Long = 0L
+    private var path: String = ""
+    private var usedStorage: Long = 0L
     private var fileList = mutableListOf<DataItem>()
 
-    private lateinit var recyclerViewAdapter : RecyclerAdapter
+    private lateinit var recyclerViewAdapter: RecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +40,8 @@ class FileActivity : AppCompatActivity() {
         navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
 
         recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
+        recyclerViewAdapter = RecyclerAdapter(fileList)
+        recyclerView.adapter = recyclerViewAdapter
     }
 
     override fun onStart() {
@@ -48,7 +51,7 @@ class FileActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             invalidate()
         }
     }
@@ -76,7 +79,7 @@ class FileActivity : AppCompatActivity() {
     }
 
     private val sideNavigationViewItemSelectedList = NavigationView.OnNavigationItemSelectedListener { item ->
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.sideLogin -> {
                 startLoginActivity()
                 true
@@ -84,14 +87,14 @@ class FileActivity : AppCompatActivity() {
             R.id.sideLogout -> {
                 DRetrofit(this@FileActivity).logout().enqueue(object : Callback<String> {
                     override fun onFailure(call: Call<String>, t: Throwable) {
-                        Toast.makeText(this@FileActivity , "서버 연결 불가" , Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@FileActivity, "서버 연결 불가", Toast.LENGTH_SHORT).show()
                     }
 
                     override fun onResponse(call: Call<String>, response: Response<String>) {
-                        if(response.isSuccessful) {
+                        if (response.isSuccessful) {
                             var parser = JSONObject(response.body())
-                            when(parser.getBoolean("error")) {
-                                true -> Toast.makeText(this@FileActivity , "로그아웃 불가" , Toast.LENGTH_SHORT).show()
+                            when (parser.getBoolean("error")) {
+                                true -> Toast.makeText(this@FileActivity, "로그아웃 불가", Toast.LENGTH_SHORT).show()
                                 false -> startLoginActivity()
                             }
                         }
@@ -106,43 +109,26 @@ class FileActivity : AppCompatActivity() {
     }
 
 
-
-
-
-
     private fun startLoginActivity() {
-        startActivityForResult(Intent(this@FileActivity , LoginActivity::class.java),100)
+        startActivityForResult(Intent(this@FileActivity, LoginActivity::class.java), 100)
     }
 
     private fun invalidate() {
         DaljinNodeWebLogin(this@FileActivity) {
-            if(it) {
+            if (it) {
                 sideHeaderID.text = DaljinNodeWebLoginData.id
                 sideHeaderGrade.text = DaljinNodeWebLoginData.grade
                 sideHeaderMaxStorage.text = fileSizeConverter(DaljinNodeWebLoginData.maxStorage)
             }
-            getFileList(path)
-        }
-    }
-
-    private fun getFileList(newPath : String = "") {
-        DRetrofit(this@FileActivity).getFileList(newPath).enqueue(object : Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Toast.makeText(this@FileActivity , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
-
-            }
-
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                if(response.isSuccessful) {
-                    val parser =  JSONObject(response.body())
+            getFileList(this@FileActivity , path ){ res , body->
+                if(res) {
+                    val parser =  JSONObject(body)
                     val error = parser.getBoolean("error")
-
                     when(error) {
                         true -> {
                             startLoginActivity()
                         }
                         false -> {
-                            path = newPath
                             //리스트 초기화
                             fileList.clear()
 
@@ -164,30 +150,21 @@ class FileActivity : AppCompatActivity() {
                                     ,file.getString("name")
                                     ,file.getString("extension")
                                     ,file.getString("fullname")
-                                    ,null
                                 )
                                 fileList.add(item)
                             }
                             //리사이클러뷰 초기화
-                            var adapter = RecyclerAdapter(fileList)
-                            recyclerView.adapter = adapter
-                            for(i in 0 until adapter.tvNameList.size) {
-                                adapter.tvNameList[i].setOnClickListener {
-                                    Toast.makeText(this@FileActivity , "HELLO" , Toast.LENGTH_SHORT).show()
-                                    if(fileList[i].type == "directory") {
-                                        if(it is TextView) {
-                                            getFileList("$path/${it.text}")
-                                        }
-                                    }
-                                }
-                            }
+                            recyclerViewAdapter.notifyDataSetChanged()
                         }
                     }
                 }
             }
-        })
+        }
     }
+
+
 }
+
 
 
 
@@ -198,10 +175,11 @@ class DataItem( val size : String
                 ,val name : String
                 ,val extension : String
                 ,val fullname : String
-                ,var checkbox : CheckBox?
                 )
 
 private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+
+
     val chbItem = itemView.chbItem
     val tvName = itemView.tvName
     val tvSize  = itemView.tvSize
@@ -209,9 +187,8 @@ private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
 }
 
 private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     var checkBoxList = mutableListOf<CheckBox>()
-    var tvNameList = mutableListOf<TextView>()
-    var tvSizeList = mutableListOf<TextView>()
 
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         var layoutInflater = LayoutInflater.from(parent.context)
@@ -222,7 +199,6 @@ private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.
         val item = items[position]
 
         var viewHolder = holder as ItemViewHolder
-        items[position].checkbox = viewHolder.chbItem
 
         when(item.type) {
             "directory" -> {
@@ -236,13 +212,26 @@ private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.
         viewHolder.tvSize.text = item.size
 
         checkBoxList.add(viewHolder.chbItem)
-        tvNameList.add(viewHolder.tvName)
-        tvSizeList.add(viewHolder.tvSize)
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-
 }
+
+fun getFileList(context : Context, newPath : String = "", callback: (Boolean , String?) -> Unit) {
+    DRetrofit(context).getFileList(newPath).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            Toast.makeText(context , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
+            callback.invoke(false , null)
+        }
+
+        override fun onResponse(call: Call<String>, response: Response<String>) {
+            if(response.isSuccessful) {
+                    callback.invoke(true , response.body())
+            }
+        }
+    })
+}
+
