@@ -10,19 +10,20 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
+import retrofit2.http.Path
 import java.io.IOException
 
-
-//로그인
-class DLoginInformation(val ID : String, val PW : String)
 
 interface DRetrofitInterface {
     @FormUrlEncoded
     @POST("/loginNW")
     fun login(@Field("ID") ID : String , @Field("PW") PW : String) : Call<String>
 
-    @POST("/fileList")
-    fun getFileList() : Call<String>
+    @POST("/fileList/{path}")
+    fun getFileList(@Path("path") path : String) : Call<String>
+
+    @POST("/logout")
+    fun logout() : Call<String>
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -82,13 +83,19 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8000")
-        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        //.baseUrl("http://10.0.2.2:8000")
+        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
         //addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(DRetrofitInterface::class.java)
+}
+
+object DaljinNodeWebLoginData {
+    var id : String = ""
+    var grade : String = ""
+    var maxStorage : Int = 0
 }
 
 

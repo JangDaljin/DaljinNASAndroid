@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.NavigationView
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -22,30 +24,69 @@ import retrofit2.Response
 
 class FileActivity : AppCompatActivity() {
 
-    /*
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    private var path : String = ""
+    private var usedStorage : Int = 0
+    private var fileList = mutableListOf<DataItem>()
+
+    private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_home -> {
-                message.setText(R.string.title_home)
+            R.id.navMkdir -> {
+
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
-                message.setText(R.string.title_dashboard)
+            R.id.navRmdir -> {
+
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
+            R.id.navUpload -> {
+
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navDownload -> {
+
                 return@OnNavigationItemSelectedListener true
             }
         }
         false
     }
-    */
+
+    private val sideNavigationViewItemSelectedList = NavigationView.OnNavigationItemSelectedListener { item ->
+        when(item.itemId) {
+            R.id.sideLogin -> {
+                startLoginActivity()
+                true
+            }
+            R.id.sideLogout -> {
+                DRetrofit(this@FileActivity).logout().enqueue(object : Callback<String> {
+                    override fun onFailure(call: Call<String>, t: Throwable) {
+                        Toast.makeText(this@FileActivity , "서버 연결 불가" , Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onResponse(call: Call<String>, response: Response<String>) {
+                        if(response.isSuccessful) {
+                            var parser = JSONObject(response.body())
+                            when(parser.getBoolean("error")) {
+                                true -> Toast.makeText(this@FileActivity , "로그아웃 불가" , Toast.LENGTH_SHORT).show()
+                                false -> startLoginActivity()
+                            }
+                        }
+                        startLoginActivity()
+                    }
+                })
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
 
-        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
+        navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
     }
 
     override fun onStart() {
@@ -60,17 +101,21 @@ class FileActivity : AppCompatActivity() {
         }
     }
 
-    private fun getFileList() {
-        DRetrofit(this@FileActivity).getFileList().enqueue(object : Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Toast.makeText(this@FileActivity , "FAILURE" , Toast.LENGTH_SHORT).show()
+    private fun startLoginActivity() {
+        startActivityForResult(Intent(this@FileActivity , LoginActivity::class.java),100)
+    }
 
+    private fun getFileList(newPath : String = "") {
+        Login(this@FileActivity) {}
+
+        DRetrofit(this@FileActivity).getFileList("$newPath").enqueue(object : Callback<String> {
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Toast.makeText(this@FileActivity , "getFileList() FAIL" , Toast.LENGTH_SHORT).show()
 
             }
 
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                Log.d("DALJIN" , response.body().toString())
-                Toast.makeText(this@FileActivity , "RESPONSE" , Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@FileActivity , "getFileList() SUCCESS" , Toast.LENGTH_SHORT).show()
 
                 if(response.isSuccessful) {
                     val parser =  JSONObject(response.body())
@@ -78,18 +123,16 @@ class FileActivity : AppCompatActivity() {
 
                     when(error) {
                         true -> {
-                            startActivityForResult(Intent(this@FileActivity , LoginActivity::class.java),100)
+                            startLoginActivity()
                         }
                         false -> {
-                            val id = parser.getString("id")
-                            val path = parser.getString("path")
+                            fileList.clear()
+
+                            //기본 저장 데이터
+                            usedStorage = parser.getInt("used_storage")
                             val files = parser.getJSONObject("files")
-                            val max_storage = parser.getInt("max_storage")
-                            val used_storage = parser.getInt("used_storage")
-                            val grade = parser.getString("grade")
 
-                            val fileList = mutableListOf<DataItem>()
-
+                            //파일 파싱 후 표시
                             for (i in 0 until files.length()) {
                                 var file = files.getJSONObject("$i")
                                 var item = DataItem(
@@ -99,20 +142,18 @@ class FileActivity : AppCompatActivity() {
                                     ,file.getString("name")
                                     ,file.getString("extension")
                                     ,file.getString("fullname")
+                                    ,false
                                 )
                                 fileList.add(item)
                             }
-
                             recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
                             recyclerView.adapter = RecyclerAdapter(fileList)
-
                         }
                     }
                 }
             }
         })
     }
-
 }
 
 fun fileSizeConverter(size : Int , count : Int = 0) : String =
@@ -136,9 +177,11 @@ class DataItem( val size : String
                 ,val name : String
                 ,val extension : String
                 ,val fullname : String
+                ,var checked : Boolean
                 )
 
 private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+    val chbItem = itemView.chbItem
     val tvName = itemView.tvName
     val tvSize  = itemView.tvSize
     val tvDate  = itemView.tvDate
@@ -146,7 +189,7 @@ private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
 
 private class RecyclerAdapter(val list : MutableList<DataItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        var layoutInflater = LayoutInflater.from(parent?.context)
+        var layoutInflater = LayoutInflater.from(parent.context)
         return ItemViewHolder(layoutInflater.inflate(R.layout.item_main , parent , false))
     }
 
@@ -154,6 +197,10 @@ private class RecyclerAdapter(val list : MutableList<DataItem>) : RecyclerView.A
         val dataItem = list[position]
 
         var viewHolder = holder as ItemViewHolder
+        viewHolder.chbItem.setOnCheckedChangeListener {
+            buttonView, isChecked ->
+                list[position].checked = isChecked
+        }
         viewHolder.tvDate.text = dataItem.ctime
         viewHolder.tvName.text = dataItem.fullname
         viewHolder.tvSize.text = dataItem.size

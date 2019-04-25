@@ -12,9 +12,19 @@
             android:text="NAME"
     />
 
-    <TextView android:id="@+id/tvSize" android:layout_width="0dp" android:gravity="center_vertical" android:layout_weight="1" android:layout_height="wrap_content" android:text="SIZE"/>
+    <TextView android:id="@+id/tvSize"
+              android:layout_width="0dp"
+              android:gravity="center_vertical"
+              android:layout_weight="1"
+              android:layout_height="wrap_content"
+              android:text="SIZE"/>
 
-    <TextView android:id="@+id/tvDate" android:layout_width="0dp" android:gravity="center_vertical" android:layout_weight="4" android:layout_height="wrap_content" android:text="DATE"/>
+    <TextView android:id="@+id/tvDate"
+              android:layout_width="0dp"
+              android:gravity="center_vertical"
+              android:layout_weight="4"
+              android:layout_height="wrap_content"
+              android:text="DATE"/>
 
 
 </LinearLayout>

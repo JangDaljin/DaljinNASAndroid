@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">DaljinNASAndroid</string>
     <string name="title_activity_file">FileActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="titleMkdir">폴더만들기</string>
+    <string name="titleRmdir">삭제</string>
+    <string name="titleUpload">업로드</string>
+    <string name="titleDownload">다운로드</string>
+    <string name="sideLogin">로그인</string>
+    <string name="sideLogout">로그아웃</string>
 </resources>
