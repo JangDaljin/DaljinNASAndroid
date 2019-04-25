@@ -1,7 +1,7 @@
 package com.example.daljin.daljinnasandroid
 
-fun fileSizeConverter(size : Int , count : Int = 0) : String =
-    if(size / 1024 == 0) {
+fun fileSizeConverter(size : Long , count : Int = 0) : String =
+    if(size / 1024 == 0L) {
         "$size${when(count) {
             0 -> "B"
             1 -> "KB"

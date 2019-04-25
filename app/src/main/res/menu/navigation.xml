@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+    <item
+            android:id="@+id/navRefresh"
+            android:icon="@drawable/refreshicon"
+            android:title="@string/bottomRefresh"/>
+
     <item
             android:id="@+id/navMkdir"
             android:icon="@drawable/mkdiricon"
-            android:title="@string/titleMkdir"/>
+            android:title="@string/bottomMkdir"/>
 
     <item
             android:id="@+id/navRmdir"
             android:icon="@drawable/trashcanicon"
-            android:title="@string/titleDownload"/>
+            android:title="@string/bottomRm"/>
 
     <item
             android:id="@+id/navUpload"
             android:icon="@drawable/uploadicon"
-            android:title="@string/titleUpload"/>
+            android:title="@string/bottomUpload"/>
 
     <item
             android:id="@+id/navDownload"
             android:icon="@drawable/downloadicon"
-            android:title="@string/titleDownload"/>
+            android:title="@string/bottomDownload"/>
+
+
 
 </menu>

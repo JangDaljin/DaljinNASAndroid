@@ -1,13 +1,10 @@
 package com.example.daljin.daljinnasandroid
 
 import android.content.Context
-import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import org.json.JSONObject
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Field
@@ -86,8 +83,8 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        //.baseUrl("http://10.0.2.2:8000")
-        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        .baseUrl("http://10.0.2.2:8000")
+        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
         //addConverterFactory(GsonConverterFactory.create())
@@ -99,36 +96,11 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 object DaljinNodeWebLoginData {
     var id : String = ""
     var grade : String = ""
-    var maxStorage : Int = 0
+    var maxStorage : Long = 0L
 
-    var isAuthenticated = (id != "" && grade != "" && maxStorage != 0 )
+    var isAuthenticated = (id != "" && grade != "" && maxStorage != 0L )
 }
 
-//로그인 요청
-fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "", func : ()-> Unit) {
-    DRetrofit(context).login(ID , PW).enqueue(object :
-        Callback<String> {
-        override fun onFailure(call: Call<String>, t: Throwable) {
-            Toast.makeText(context , "서버와 연결이 되지 않습니다." , Toast.LENGTH_LONG).show()
-        }
 
-        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
-            //Log.d("DALJIN" , response.body().toString())
-            if(response.isSuccessful) {
-                val parser = JSONObject(response.body())
-
-                when(parser.getBoolean("error")){
-                    true -> Toast.makeText(context , "로그인 실패" , Toast.LENGTH_SHORT).show()
-                    false -> {
-                        DaljinNodeWebLoginData.id = parser.getString("id")
-                        DaljinNodeWebLoginData.grade = parser.getString("grade")
-                        DaljinNodeWebLoginData.maxStorage = parser.getInt("max_storage")
-                        func()
-                    }
-                }
-            }
-        }
-    })
-}
 
 

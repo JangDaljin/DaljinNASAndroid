@@ -2,14 +2,13 @@ package com.example.daljin.daljinnasandroid
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,10 +26,32 @@ import retrofit2.Response
 class FileActivity : AppCompatActivity() {
 
     private var path : String = ""
-    private var usedStorage : Int = 0
+    private var usedStorage : Long = 0L
     private var fileList = mutableListOf<DataItem>()
 
     private lateinit var recyclerViewAdapter : RecyclerAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_file)
+
+        navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
+        navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
+
+        recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        invalidate()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK) {
+            invalidate()
+        }
+    }
 
     private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -84,29 +105,7 @@ class FileActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_file)
 
-        navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
-        navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
-
-        recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
-        recyclerViewAdapter = RecyclerAdapter(fileList)
-        recyclerView.adapter = recyclerViewAdapter
-    }
-
-    override fun onStart() {
-        super.onStart()
-        invalidate()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK) {
-            invalidate()
-        }
-    }
 
 
 
@@ -116,36 +115,24 @@ class FileActivity : AppCompatActivity() {
     }
 
     private fun invalidate() {
-
-        val sideHeaderInvalidate = {
-            sideHeaderID.text = DaljinNodeWebLoginData.id
-            sideHeaderGrade.text = DaljinNodeWebLoginData.grade
-            sideHeaderMaxStorage.text = DaljinNodeWebLoginData.maxStorage.toString()
-        }
-
-        if(!DaljinNodeWebLoginData.isAuthenticated) {
-            DaljinNodeWebLogin(this@FileActivity){
-                sideHeaderInvalidate
+        DaljinNodeWebLogin(this@FileActivity) {
+            if(it) {
+                sideHeaderID.text = DaljinNodeWebLoginData.id
+                sideHeaderGrade.text = DaljinNodeWebLoginData.grade
+                sideHeaderMaxStorage.text = fileSizeConverter(DaljinNodeWebLoginData.maxStorage)
             }
-        } else {
-            sideHeaderInvalidate
+            getFileList(path)
         }
-
-
-        getFileList(path)
     }
 
     private fun getFileList(newPath : String = "") {
-
-        DRetrofit(this@FileActivity).getFileList("$newPath").enqueue(object : Callback<String> {
+        DRetrofit(this@FileActivity).getFileList(newPath).enqueue(object : Callback<String> {
             override fun onFailure(call: Call<String>, t: Throwable) {
-                //Toast.makeText(this@FileActivity , "getFileList() FAIL" , Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@FileActivity , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
 
             }
 
             override fun onResponse(call: Call<String>, response: Response<String>) {
-                //Toast.makeText(this@FileActivity , "getFileList() SUCCESS" , Toast.LENGTH_SHORT).show()
-
                 if(response.isSuccessful) {
                     val parser =  JSONObject(response.body())
                     val error = parser.getBoolean("error")
@@ -155,18 +142,23 @@ class FileActivity : AppCompatActivity() {
                             startLoginActivity()
                         }
                         false -> {
+                            path = newPath
                             //리스트 초기화
                             fileList.clear()
 
-                            //기본 저장 데이터
-                            usedStorage = parser.getInt("used_storage")
+                            //프로그래스바 초기화
+                            usedStorage = parser.getLong("used_storage")
+                            val percentage = usedStorage / DaljinNodeWebLoginData.maxStorage
+                            tvStorage.text = "$percentage%"
+                            pgbStorage.progress = percentage.toInt()
+
                             val files = parser.getJSONObject("files")
 
                             //파일 파싱 후 표시
                             for (i in 0 until files.length()) {
                                 var file = files.getJSONObject("$i")
                                 var item = DataItem(
-                                    fileSizeConverter(file.getInt("size"))
+                                    fileSizeConverter(file.getLong("size"))
                                     ,file.getString("ctime")
                                     ,file.getString("type")
                                     ,file.getString("name")
@@ -176,9 +168,19 @@ class FileActivity : AppCompatActivity() {
                                 )
                                 fileList.add(item)
                             }
-
                             //리사이클러뷰 초기화
-                            recyclerViewAdapter.notifyDataSetChanged()
+                            var adapter = RecyclerAdapter(fileList)
+                            recyclerView.adapter = adapter
+                            for(i in 0 until adapter.tvNameList.size) {
+                                adapter.tvNameList[i].setOnClickListener {
+                                    Toast.makeText(this@FileActivity , "HELLO" , Toast.LENGTH_SHORT).show()
+                                    if(fileList[i].type == "directory") {
+                                        if(it is TextView) {
+                                            getFileList("$path/${it.text}")
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -206,32 +208,40 @@ private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
     val tvDate  = itemView.tvDate
 }
 
-private class RecyclerAdapter(val list : MutableList<DataItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var checkBoxList = mutableListOf<CheckBox>()
+    var tvNameList = mutableListOf<TextView>()
+    var tvSizeList = mutableListOf<TextView>()
+
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         var layoutInflater = LayoutInflater.from(parent.context)
         return ItemViewHolder(layoutInflater.inflate(R.layout.item_main , parent , false))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val dataItem = list[position]
+        val item = items[position]
 
         var viewHolder = holder as ItemViewHolder
+        items[position].checkbox = viewHolder.chbItem
 
-        list[position].checkbox = viewHolder.chbItem
-
-        when(dataItem.type) {
+        when(item.type) {
             "directory" -> {
-
+                viewHolder.chbItem.visibility = View.INVISIBLE
+                viewHolder.tvName.setTextColor(Color.BLUE)
             }
         }
 
-        viewHolder.tvDate.text = dataItem.ctime
-        viewHolder.tvName.text = dataItem.fullname
-        viewHolder.tvSize.text = dataItem.size
+        viewHolder.tvDate.text = item.ctime
+        viewHolder.tvName.text = item.fullname
+        viewHolder.tvSize.text = item.size
+
+        checkBoxList.add(viewHolder.chbItem)
+        tvNameList.add(viewHolder.tvName)
+        tvSizeList.add(viewHolder.tvSize)
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return items.size
     }
 
 
