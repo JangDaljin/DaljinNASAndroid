@@ -2,7 +2,6 @@ package com.example.daljin.daljinnasandroid
 
 import android.content.Context
 import android.widget.Toast
-import kotlinx.android.synthetic.main.sideheader.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -14,7 +13,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
-import retrofit2.http.Path
 import java.io.IOException
 
 
@@ -23,8 +21,9 @@ interface DRetrofitInterface {
     @POST("/loginNW")
     fun login(@Field("ID") ID : String , @Field("PW") PW : String) : Call<String>
 
-    @POST("/fileList/{path}")
-    fun getFileList(@Path("path") path : String) : Call<String>
+    @FormUrlEncoded
+    @POST("/fileList")
+    fun getFileList(@Field("path") path : String) : Call<String>
 
     @POST("/logoutNW")
     fun logout() : Call<String>
@@ -87,8 +86,8 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        //.baseUrl("http://10.0.2.2:8000")
-        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        .baseUrl("http://10.0.2.2:8000")
+        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
         //.addConverterFactory(GsonConverterFactory.create())
@@ -131,8 +130,8 @@ fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , c
 }
 
 //파일 리스트 얻기
-fun DaljinNodeWebGetFileList(context : Context, newPath : String = "", callback: (Boolean, String?) -> Unit) {
-    DRetrofit(context).getFileList(newPath).enqueue(object : Callback<String> {
+fun DaljinNodeWebGetFileList(context : Context, path : String = "", callback: (Boolean, String?) -> Unit) {
+    DRetrofit(context).getFileList(path).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             Toast.makeText(context , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
             callback.invoke(false , null)
@@ -140,7 +139,6 @@ fun DaljinNodeWebGetFileList(context : Context, newPath : String = "", callback:
 
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-
                 callback.invoke(true , response.body())
             }
         }

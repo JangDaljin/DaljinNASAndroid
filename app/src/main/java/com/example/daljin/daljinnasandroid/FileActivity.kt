@@ -25,7 +25,7 @@ import retrofit2.Response
 
 class FileActivity : AppCompatActivity() {
 
-    private var path: String = ""
+    private var path: String = "/"
     private var usedStorage: Long = 0L
     private var fileList = mutableListOf<DataItem>()
 
@@ -36,7 +36,11 @@ class FileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_file)
 
         recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
-        recyclerViewAdapter = RecyclerAdapter(fileList)
+        recyclerViewAdapter = RecyclerAdapter(fileList )
+        {
+            nextPath -> path = "$path/$nextPath"
+            invalidate()
+        }
         recyclerView.adapter = recyclerViewAdapter
 
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
@@ -45,6 +49,7 @@ class FileActivity : AppCompatActivity() {
         chbAll.setOnCheckedChangeListener { buttonView, isChecked ->
             recyclerViewAdapter.ToggleAll(isChecked)
         }
+
     }
 
     override fun onStart() {
@@ -177,6 +182,7 @@ class FileActivity : AppCompatActivity() {
             }
         }
     }
+
 }
 
 
@@ -202,7 +208,9 @@ private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
     val tvDate  = itemView.tvDate
 }
 
-private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private class RecyclerAdapter(var items : MutableList<DataItem> , val callback: ((String) -> Unit)?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    constructor(items : MutableList<DataItem>) : this(items , null)
 
     var checkBoxList = mutableListOf<Pair<CheckBox , String>>()
 
@@ -221,7 +229,15 @@ private class RecyclerAdapter(var items : MutableList<DataItem>) : RecyclerView.
 
         when(item.type) {
             "directory" -> {
+                viewHolder.chbItem.visibility=View.INVISIBLE
                 viewHolder.tvName.setTextColor(Color.BLUE)
+                viewHolder.tvName.setOnClickListener {
+                    callback?.invoke(viewHolder.tvName.text.toString())
+                }
+            }
+            else -> {
+                viewHolder.chbItem.visibility=View.VISIBLE
+                viewHolder.tvName.setTextColor(Color.BLACK)
             }
         }
 
