@@ -1,10 +1,14 @@
 package com.example.daljin.daljinnasandroid
 
 import android.content.Context
+import android.widget.Toast
+import kotlinx.android.synthetic.main.sideheader.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import org.json.JSONObject
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Field
@@ -83,11 +87,11 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8000")
-        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        //.baseUrl("http://10.0.2.2:8000")
+        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
-        //addConverterFactory(GsonConverterFactory.create())
+        //.addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(DRetrofitInterface::class.java)
 }
@@ -99,6 +103,48 @@ object DaljinNodeWebLoginData {
     var maxStorage : Long = 0L
 
     var isAuthenticated = (id != "" && grade != "" && maxStorage != 0L )
+}
+
+//로그인 요청
+fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , callback : (Boolean , String?)-> Unit) {
+    DRetrofit(context).login(ID , PW).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback.invoke(false , null)
+        }
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                val parser = JSONObject(response.body())
+                when(parser.getBoolean("error")){
+                    true -> {
+                        callback.invoke(true , null)
+                    }
+                    false -> {
+                        DaljinNodeWebLoginData.id = parser.getString("id")
+                        DaljinNodeWebLoginData.grade = parser.getString("grade")
+                        DaljinNodeWebLoginData.maxStorage = parser.getLong("max_storage")
+                        callback.invoke(true , response.body())
+                    }
+                }
+            }
+        }
+    })
+}
+
+//파일 리스트 얻기
+fun DaljinNodeWebGetFileList(context : Context, newPath : String = "", callback: (Boolean, String?) -> Unit) {
+    DRetrofit(context).getFileList(newPath).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            Toast.makeText(context , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
+            callback.invoke(false , null)
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+
+                callback.invoke(true , response.body())
+            }
+        }
+    })
 }
 
 

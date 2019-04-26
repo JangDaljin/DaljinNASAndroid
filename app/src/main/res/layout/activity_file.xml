@@ -116,5 +116,14 @@
                 app:headerLayout="@layout/sideheader"
         />
 
+    <LinearLayout android:layout_width="150dp"
+                  android:layout_height="match_parent"
+                  android:layout_gravity = "start"
+                  android:orientation="vertical"
+    >
+
+    </LinearLayout>
+
+
 
 </android.support.v4.widget.DrawerLayout>
