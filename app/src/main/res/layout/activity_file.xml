@@ -48,40 +48,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
+
                     xmlns:android="http://schemas.android.com/apk/res/android">
 
-                <CheckBox android:id="@+id/chbAll" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <CheckBox android:id="@+id/chbAll"
+                          android:gravity="center"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginLeft="5dp"/>/>
 
                 <TextView
                         android:gravity="center"
                         android:layout_width="0dp"
-                        android:layout_weight="5"
+                        android:layout_weight="4"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="5dp"
                         android:text="파일명"
                 />
 
                 <TextView android:layout_width="0dp"
                           android:gravity="center"
-                          android:layout_weight="1"
+                          android:layout_weight="2"
                           android:layout_height="wrap_content"
+                          android:layout_marginHorizontal="5dp"
                           android:text="크기"/>
 
                 <TextView android:layout_width="0dp"
                           android:gravity="center"
                           android:layout_weight="4"
                           android:layout_height="wrap_content"
-                          android:text="날짜"/>
+                          android:text="날짜"
+                          android:layout_marginRight="5dp"/>/>
 
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recyclerView"
+                    android:id="@+id/fileView"
                     android:layout_below="@+id/columnNameLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="5dp"/>
+                    android:layout_height="match_parent"/>
 
 
             <android.support.design.widget.BottomNavigationView
@@ -92,24 +97,23 @@
                     android:layout_marginStart="0dp"
                     android:background="?android:attr/windowBackground"
                     android:layout_alignParentBottom="true"
-                    app:menu="@menu/navigation"
+                    app:menu="@menu/bottommenu"
                     app:labelVisibilityMode="labeled"/>
 
         </RelativeLayout>
 
 
         <android.support.design.widget.NavigationView
-                android:id="@+id/navSide"
+                android:id="@+id/rightSizeView"
                 android:layout_gravity = "right"
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
-                android:layoutDirection="rtl"
-                app:menu="@menu/sidemenu"
-                app:headerLayout="@layout/sideheader"
+                app:menu="@menu/rightsidemenu"
+                app:headerLayout="@layout/rightsideheader"
         />
 
     <LinearLayout
-            android:id="@+id/rightSideView"
+            android:id="@+id/leftSideView"
             android:background="#FFFFFF"
             android:layout_width="250dp"
             android:layout_height="match_parent"

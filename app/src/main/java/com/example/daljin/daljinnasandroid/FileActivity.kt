@@ -1,15 +1,16 @@
 package com.example.daljin.daljinnasandroid
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,7 @@ import android.widget.CheckBox
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.item_main.view.*
-import kotlinx.android.synthetic.main.sideheader.*
+import kotlinx.android.synthetic.main.rightsideheader.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -29,25 +30,21 @@ class FileActivity : AppCompatActivity() {
     private var usedStorage: Long = 0L
     private var fileList = mutableListOf<DataItem>()
 
-    private lateinit var recyclerViewAdapter: RecyclerAdapter
+    private lateinit var fileViewViewAdapter: FileViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
 
-        recyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
-        recyclerViewAdapter = RecyclerAdapter(fileList )
-        {
-            nextPath -> path = "$path/$nextPath"
-            invalidate()
-        }
-        recyclerView.adapter = recyclerViewAdapter
+        fileView.layoutManager = LinearLayoutManager(this@FileActivity)
+        fileViewViewAdapter = FileViewAdapter(this@FileActivity , fileList)
+        fileView.adapter = fileViewViewAdapter
 
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
-        navSide.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
+        rightSizeView.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
 
         chbAll.setOnCheckedChangeListener { buttonView, isChecked ->
-            recyclerViewAdapter.ToggleAll(isChecked)
+            fileViewViewAdapter.toggleAll(isChecked)
         }
 
     }
@@ -79,7 +76,7 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                for(i in 0 until recyclerViewAdapter.checkBoxList.size) {
+                for(i in 0 until fileViewViewAdapter.checkBoxList.size) {
 
                 }
                 return@OnNavigationItemSelectedListener true
@@ -174,8 +171,8 @@ class FileActivity : AppCompatActivity() {
                                 fileList.add(item)
                             }
                             //리사이클러뷰 초기화
-                            recyclerViewAdapter.checkBoxList.clear()
-                            recyclerViewAdapter.notifyDataSetChanged()
+                            fileViewViewAdapter.checkBoxList.clear()
+                            fileViewViewAdapter.notifyDataSetChanged()
                         }
                     }
                 }
@@ -186,12 +183,6 @@ class FileActivity : AppCompatActivity() {
 }
 
 
-
-
-
-
-
-
 class DataItem( val size : String
                 ,val ctime : String
                 ,val type : String
@@ -200,44 +191,49 @@ class DataItem( val size : String
                 ,val fullname : String
                 )
 
-private class ItemViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
-
+private class FileViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
     val chbItem = itemView.chbItem
     val tvName = itemView.tvName
     val tvSize  = itemView.tvSize
     val tvDate  = itemView.tvDate
 }
 
-private class RecyclerAdapter(var items : MutableList<DataItem> , val callback: ((String) -> Unit)?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    constructor(items : MutableList<DataItem>) : this(items , null)
+private class FileViewAdapter(context : Context, var items : MutableList<DataItem>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var checkBoxList = mutableListOf<Pair<CheckBox , String>>()
 
-    override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        Log.d("DALJIN" , "CREATE")
-        var layoutInflater = LayoutInflater.from(parent.context)
-        return ItemViewHolder(layoutInflater.inflate(R.layout.item_main , parent , false))
+    private val fileImage = ContextCompat.getDrawable(context , R.drawable.fileicon)
+    private val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
 
+    override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        var layoutInflater = LayoutInflater.from(parent.context)
+        return FileViewHolder(layoutInflater.inflate(R.layout.item_main , parent , false))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Log.d("DALJIN" , "$position")
         val item = items[position]
+        var viewHolder = holder as FileViewHolder
 
-        var viewHolder = holder as ItemViewHolder
+        val iconWidth= viewHolder.tvName.textSize.toInt()
+        val iconHeight  = viewHolder.tvName.textSize.toInt()
+        val iconPadding : Int = viewHolder.tvName.textSize.toInt()/2
 
         when(item.type) {
             "directory" -> {
-                viewHolder.chbItem.visibility=View.INVISIBLE
                 viewHolder.tvName.setTextColor(Color.BLUE)
-                viewHolder.tvName.setOnClickListener {
-                    callback?.invoke(viewHolder.tvName.text.toString())
+                directoryImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight ) }
+                viewHolder.tvName.apply{
+                    compoundDrawablePadding = iconPadding
+                    setCompoundDrawables(directoryImage , null , null , null)
                 }
             }
             else -> {
-                viewHolder.chbItem.visibility=View.VISIBLE
                 viewHolder.tvName.setTextColor(Color.BLACK)
+                fileImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight) }
+                viewHolder.tvName.apply {
+                    compoundDrawablePadding = iconPadding
+                    setCompoundDrawables(fileImage , null , null , null)
+                }
             }
         }
 
@@ -253,7 +249,7 @@ private class RecyclerAdapter(var items : MutableList<DataItem> , val callback: 
     }
 
 
-    fun ToggleAll(t : Boolean) {
+    fun toggleAll(t : Boolean) {
         for(i in 0 until checkBoxList.size) {
             checkBoxList[i].first.isChecked = t
         }

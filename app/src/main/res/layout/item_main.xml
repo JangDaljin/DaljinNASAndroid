@@ -1,31 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <CheckBox android:id="@+id/chbItem" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    <CheckBox android:id="@+id/chbItem"
+              android:gravity="center"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="5dp"/>
 
     <TextView
             android:id="@+id/tvName"
             android:gravity="center_vertical"
             android:layout_width="0dp"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:layout_height="wrap_content"
             android:text="NAME"
+            android:layout_marginHorizontal="5dp"
             android:ellipsize="end"
             android:maxLines="1"
     />
 
     <TextView android:id="@+id/tvSize"
               android:layout_width="0dp"
-              android:gravity="center_vertical"
-              android:layout_weight="1"
+              android:gravity="center"
+              android:layout_weight="2"
               android:layout_height="wrap_content"
+              android:layout_marginHorizontal="5dp"
               android:text="SIZE"/>
 
     <TextView android:id="@+id/tvDate"
               android:layout_width="0dp"
-              android:gravity="center_vertical"
+              android:gravity="center"
               android:layout_weight="4"
               android:layout_height="wrap_content"
+              android:layout_marginRight="5dp"
               android:text="DATE"/>
 
 
