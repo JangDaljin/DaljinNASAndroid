@@ -112,6 +112,7 @@
                 app:headerLayout="@layout/rightsideheader"
         />
 
+    <!--
     <LinearLayout
             android:id="@+id/leftSideView"
             android:background="#FFFFFF"
@@ -125,6 +126,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
     </LinearLayout>
+    -->
 
 
 </android.support.v4.widget.DrawerLayout>

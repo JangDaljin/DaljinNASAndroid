@@ -29,22 +29,24 @@ class FileActivity : AppCompatActivity() {
     private var path: String = "/"
     private var usedStorage: Long = 0L
     private var fileList = mutableListOf<DataItem>()
-
-    private lateinit var fileViewViewAdapter: FileViewAdapter
+    private lateinit var fileViewAdapter: FileViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
 
         fileView.layoutManager = LinearLayoutManager(this@FileActivity)
-        fileViewViewAdapter = FileViewAdapter(this@FileActivity , fileList)
-        fileView.adapter = fileViewViewAdapter
+        fileViewAdapter = FileViewAdapter(this@FileActivity , fileList) {
+            path = "$path/$it"
+            invalidate()
+        }
+        fileView.adapter = fileViewAdapter
 
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
         rightSizeView.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
 
         chbAll.setOnCheckedChangeListener { buttonView, isChecked ->
-            fileViewViewAdapter.toggleAll(isChecked)
+            fileViewAdapter.toggleAll(isChecked)
         }
 
     }
@@ -76,7 +78,7 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                for(i in 0 until fileViewViewAdapter.checkBoxList.size) {
+                for(i in 0 until fileViewAdapter.checkBoxList.size) {
 
                 }
                 return@OnNavigationItemSelectedListener true
@@ -156,7 +158,6 @@ class FileActivity : AppCompatActivity() {
                             pgbStorage.progress = percentage.toInt()
 
                             val files = parser.getJSONObject("files")
-
                             //파일 파싱 후 표시
                             for (i in 0 until files.length()) {
                                 var file = files.getJSONObject("$i")
@@ -169,10 +170,16 @@ class FileActivity : AppCompatActivity() {
                                     , file.getString("fullname")
                                 )
                                 fileList.add(item)
+
                             }
+
+
+
+
+
                             //리사이클러뷰 초기화
-                            fileViewViewAdapter.checkBoxList.clear()
-                            fileViewViewAdapter.notifyDataSetChanged()
+                            fileViewAdapter.checkBoxList.fill(null)
+                            fileViewAdapter.notifyDataSetChanged()
                         }
                     }
                 }
@@ -198,9 +205,10 @@ private class FileViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
     val tvDate  = itemView.tvDate
 }
 
-private class FileViewAdapter(context : Context, var items : MutableList<DataItem>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private class FileViewAdapter(context : Context, var items : MutableList<DataItem> , var callback : (String)->Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var checkBoxList = mutableListOf<Pair<CheckBox , String>>()
+    var checkBoxList = arrayOfNulls<Pair<CheckBox , String>>(items.size)
+
 
     private val fileImage = ContextCompat.getDrawable(context , R.drawable.fileicon)
     private val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
@@ -239,9 +247,14 @@ private class FileViewAdapter(context : Context, var items : MutableList<DataIte
 
         viewHolder.tvDate.text = item.ctime
         viewHolder.tvName.text = item.fullname
+        viewHolder.tvName.setOnClickListener {
+            callback.invoke(viewHolder.tvName.text.toString())
+        }
+
+
         viewHolder.tvSize.text = item.size
 
-        checkBoxList.add(position , Pair(viewHolder.chbItem , viewHolder.tvName.text.toString()))
+        checkBoxList[position] = Pair(viewHolder.chbItem , viewHolder.tvName.text.toString())
     }
 
     override fun getItemCount(): Int {
@@ -251,7 +264,7 @@ private class FileViewAdapter(context : Context, var items : MutableList<DataIte
 
     fun toggleAll(t : Boolean) {
         for(i in 0 until checkBoxList.size) {
-            checkBoxList[i].first.isChecked = t
+            checkBoxList[i]?.first?.isChecked = t
         }
     }
 }
