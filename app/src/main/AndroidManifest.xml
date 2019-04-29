@@ -20,7 +20,7 @@
         </activity>
         <activity
                 android:name=".LoginActivity"
-                android:label="MainActivity">
+                android:label="LOGIN">
         </activity>
     </application>
 

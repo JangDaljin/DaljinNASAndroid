@@ -78,9 +78,7 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                for(i in 0 until fileViewAdapter.checkBoxList.size) {
 
-                }
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -168,17 +166,13 @@ class FileActivity : AppCompatActivity() {
                                     , file.getString("name")
                                     , file.getString("extension")
                                     , file.getString("fullname")
+                                    , false
                                 )
                                 fileList.add(item)
-
                             }
 
 
-
-
-
                             //리사이클러뷰 초기화
-                            fileViewAdapter.checkBoxList.fill(null)
                             fileViewAdapter.notifyDataSetChanged()
                         }
                     }
@@ -196,6 +190,7 @@ class DataItem( val size : String
                 ,val name : String
                 ,val extension : String
                 ,val fullname : String
+                ,var isChecked : Boolean
                 )
 
 private class FileViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
@@ -206,9 +201,6 @@ private class FileViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView
 }
 
 private class FileViewAdapter(context : Context, var items : MutableList<DataItem> , var callback : (String)->Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    var checkBoxList = arrayOfNulls<Pair<CheckBox , String>>(items.size)
-
 
     private val fileImage = ContextCompat.getDrawable(context , R.drawable.fileicon)
     private val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
@@ -228,33 +220,36 @@ private class FileViewAdapter(context : Context, var items : MutableList<DataIte
 
         when(item.type) {
             "directory" -> {
-                viewHolder.tvName.setTextColor(Color.BLUE)
                 directoryImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight ) }
-                viewHolder.tvName.apply{
+                viewHolder.tvName.apply {
                     compoundDrawablePadding = iconPadding
-                    setCompoundDrawables(directoryImage , null , null , null)
+                    setCompoundDrawables(directoryImage, null, null, null)
+                    setTextColor(Color.BLUE)
+                    setOnClickListener {
+                        callback.invoke(viewHolder.tvName.text.toString())
+                    }
                 }
             }
             else -> {
-                viewHolder.tvName.setTextColor(Color.BLACK)
                 fileImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight) }
-                viewHolder.tvName.apply {
+                viewHolder.tvName.apply{
+                    setTextColor(Color.BLACK)
                     compoundDrawablePadding = iconPadding
                     setCompoundDrawables(fileImage , null , null , null)
                 }
             }
         }
 
-        viewHolder.tvDate.text = item.ctime
         viewHolder.tvName.text = item.fullname
-        viewHolder.tvName.setOnClickListener {
-            callback.invoke(viewHolder.tvName.text.toString())
+
+        viewHolder.chbItem.apply {
+            isChecked = item.isChecked
+            setOnClickListener {
+                item.isChecked = isChecked
+            }
         }
-
-
         viewHolder.tvSize.text = item.size
-
-        checkBoxList[position] = Pair(viewHolder.chbItem , viewHolder.tvName.text.toString())
+        viewHolder.tvDate.text = item.ctime
     }
 
     override fun getItemCount(): Int {
@@ -263,9 +258,8 @@ private class FileViewAdapter(context : Context, var items : MutableList<DataIte
 
 
     fun toggleAll(t : Boolean) {
-        for(i in 0 until checkBoxList.size) {
-            checkBoxList[i]?.first?.isChecked = t
-        }
+        items.forEach { it.isChecked = t }
+        notifyDataSetChanged()
     }
 }
 
