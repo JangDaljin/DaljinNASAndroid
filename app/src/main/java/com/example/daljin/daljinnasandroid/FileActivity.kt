@@ -16,6 +16,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.Toast
+import com.github.treeview.*
+import com.github.treeview.TreeViewAdapter
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.item_main.view.*
 import kotlinx.android.synthetic.main.rightsideheader.*
@@ -23,6 +25,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class FileActivity : AppCompatActivity() {
 
@@ -31,16 +34,47 @@ class FileActivity : AppCompatActivity() {
     private var fileList = mutableListOf<DataItem>()
     private lateinit var fileViewAdapter: FileViewAdapter
 
+    private var treeNodes = mutableListOf<TreeNode<*>>()
+    private lateinit var treeViewAdapter: TreeViewAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
 
+        //파일뷰 setting
         fileView.layoutManager = LinearLayoutManager(this@FileActivity)
         fileViewAdapter = FileViewAdapter(this@FileActivity , fileList) {
             path = "$path/$it"
-            invalidate()
+            //invalidate()
         }
         fileView.adapter = fileViewAdapter
+
+
+        //트리뷰 setting
+        treeNodes.add(TreeNode(Dir("TEST")))
+        treeRecyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
+        treeViewAdapter = TreeViewAdapter(treeNodes , Arrays.asList(FileNodeBinder() , DirectoryNodeBinder()))
+        treeViewAdapter.setOnTreeNodeListener(object : TreeViewAdapter.OnTreeNodeListener{
+            override fun onClick(node: TreeNode<*>?, holder: RecyclerView.ViewHolder?): Boolean {
+                when(node?.isLeaf) {
+                    false -> onToggle(!node.isExpand , holder)
+                    true -> {
+                        invalidate(node)
+                    }
+                }
+                return false
+            }
+
+            override fun onToggle(isExpand: Boolean, holder: RecyclerView.ViewHolder?) {
+                val dirViewHolder = holder as DirectoryNodeBinder.ViewHolder
+                val ivArrow = dirViewHolder.ivArrow
+                val rotateDegree = if(isExpand) 90f else -90f
+                ivArrow.animate().rotationBy(rotateDegree).start()
+            }
+        })
+
+
+
 
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
         rightSizeView.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
@@ -120,7 +154,7 @@ class FileActivity : AppCompatActivity() {
         startActivityForResult(Intent(this@FileActivity, LoginActivity::class.java), 100)
     }
 
-    private fun invalidate() {
+    private fun invalidate(node : TreeNode<*>? = null) {
         DaljinNodeWebLogin(this@FileActivity , "" , "") { loginRes, loginBody ->
             if (loginRes) {
                 when (loginBody) {
@@ -156,6 +190,7 @@ class FileActivity : AppCompatActivity() {
                             pgbStorage.progress = percentage.toInt()
 
                             val files = parser.getJSONObject("files")
+                            var dirs = mutableListOf<String>()
                             //파일 파싱 후 표시
                             for (i in 0 until files.length()) {
                                 var file = files.getJSONObject("$i")
@@ -169,8 +204,25 @@ class FileActivity : AppCompatActivity() {
                                     , false
                                 )
                                 fileList.add(item)
+                                if(item.type=="directory") {
+                                    dirs.add(item.name)
+                                }
                             }
-
+                            when(node)
+                            {
+                                null -> {
+                                    for(i in 0 until dirs.size) {
+                                        treeNodes.add(TreeNode(Dir(dirs[i])))
+                                    }
+                                    treeViewAdapter.notifyDataSetChanged()
+                                }
+                                else -> {
+                                    for(i in 0 until dirs.size) {
+                                        node.addChild(TreeNode(Dir(dirs[i])))
+                                    }
+                                    treeViewAdapter.refresh(node.childList)
+                                }
+                            }
 
                             //리사이클러뷰 초기화
                             fileViewAdapter.notifyDataSetChanged()
@@ -262,6 +314,12 @@ private class FileViewAdapter(context : Context, var items : MutableList<DataIte
         notifyDataSetChanged()
     }
 }
+
+
+
+
+
+
 
 
 
