@@ -118,10 +118,6 @@
              android:layout_gravity = "start"
             android:orientation="vertical">
 
-        <TextView
-                android:text="AAAAAAAA"
-                android:layout_width="match_parent" android:layout_height="wrap_content"/>
-
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/treeRecyclerView"
                 android:layout_width="match_parent"

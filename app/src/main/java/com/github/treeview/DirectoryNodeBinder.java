@@ -1,5 +1,6 @@
 package com.github.treeview;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -26,10 +27,11 @@ public class DirectoryNodeBinder extends TreeViewBinder<DirectoryNodeBinder.View
         holder.ivArrow.setRotation(rotateDegree);
         Dir dirNode = (Dir) node.getContent();
         holder.tvName.setText(dirNode.dirName);
+        holder.tvName.setTextColor(Color.BLACK);
 
-        Drawable[] img = holder.tvName.getCompoundDrawables();
+        Drawable[] img = holder.tvName.getCompoundDrawablesRelative();
         img[0].setBounds(0 , 0 , Math.round(holder.tvName.getTextSize()) ,Math.round(holder.tvName.getTextSize()));
-        holder.tvName.setCompoundDrawables(img[0] , null , null  , null);
+        holder.tvName.setCompoundDrawablesRelative(img[0] , null , null  , null);
 
         if (node.isLeaf())
             holder.ivArrow.setVisibility(View.INVISIBLE);

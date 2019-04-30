@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.TextView
 import android.widget.Toast
 import com.github.treeview.*
 import com.github.treeview.TreeViewAdapter
@@ -29,13 +30,14 @@ import java.util.*
 
 class FileActivity : AppCompatActivity() {
 
-    private var path: String = "/"
+    private var path: String = ""
     private var usedStorage: Long = 0L
     private var fileList = mutableListOf<DataItem>()
     private lateinit var fileViewAdapter: FileViewAdapter
 
     private var treeNodes = mutableListOf<TreeNode<*>>()
     private lateinit var treeViewAdapter: TreeViewAdapter
+    private var selectedItemView : TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,24 +46,27 @@ class FileActivity : AppCompatActivity() {
         //파일뷰 setting
         fileView.layoutManager = LinearLayoutManager(this@FileActivity)
         fileViewAdapter = FileViewAdapter(this@FileActivity , fileList) {
-            path = "$path/$it"
-            //invalidate()
+
         }
         fileView.adapter = fileViewAdapter
 
-
         //트리뷰 setting
-        treeNodes.add(TreeNode(Dir("TEST")))
         treeRecyclerView.layoutManager = LinearLayoutManager(this@FileActivity)
         treeViewAdapter = TreeViewAdapter(treeNodes , Arrays.asList(FileNodeBinder() , DirectoryNodeBinder()))
         treeViewAdapter.setOnTreeNodeListener(object : TreeViewAdapter.OnTreeNodeListener{
             override fun onClick(node: TreeNode<*>?, holder: RecyclerView.ViewHolder?): Boolean {
-                when(node?.isLeaf) {
-                    false -> onToggle(!node.isExpand , holder)
-                    true -> {
-                        invalidate(node)
+                path = "/${(node?.content as Dir).dirName}"
+                var pNode = node.parent
+                while(pNode != null) {
+                    path = "/${(pNode.content as Dir).dirName}$path"
+                    pNode = pNode.parent
+                }
+                when(node.isLeaf) {
+                    false -> {
+                        onToggle(!node.isExpand , holder)
                     }
                 }
+                invalidate(node)
                 return false
             }
 
@@ -72,6 +77,7 @@ class FileActivity : AppCompatActivity() {
                 ivArrow.animate().rotationBy(rotateDegree).start()
             }
         })
+        treeRecyclerView.adapter = treeViewAdapter
 
 
 
@@ -158,9 +164,8 @@ class FileActivity : AppCompatActivity() {
         DaljinNodeWebLogin(this@FileActivity , "" , "") { loginRes, loginBody ->
             if (loginRes) {
                 when (loginBody) {
-                    null -> Toast.makeText(this@FileActivity, "로그인 실패", Toast.LENGTH_SHORT).show()
+                    null -> {}
                     else -> {
-                        Toast.makeText(this@FileActivity, "로그인 성공", Toast.LENGTH_SHORT).show()
                         sideHeaderID.text = DaljinNodeWebLoginData.id
                         sideHeaderGrade.text = DaljinNodeWebLoginData.grade
                         sideHeaderMaxStorage.text = fileSizeConverter(DaljinNodeWebLoginData.maxStorage)
@@ -210,17 +215,23 @@ class FileActivity : AppCompatActivity() {
                             }
                             when(node)
                             {
+                                //최초실행(onStart())
                                 null -> {
+                                    treeNodes.clear()
+                                    val rootNode = TreeNode(Dir("/"))
                                     for(i in 0 until dirs.size) {
-                                        treeNodes.add(TreeNode(Dir(dirs[i])))
+                                        rootNode.addChild(TreeNode(Dir(dirs[i])))
                                     }
-                                    treeViewAdapter.notifyDataSetChanged()
+                                    treeNodes.add(rootNode)
+                                    treeViewAdapter.refresh(treeNodes)
                                 }
+                                //일반 실행
                                 else -> {
+                                    node.childList.clear()
                                     for(i in 0 until dirs.size) {
                                         node.addChild(TreeNode(Dir(dirs[i])))
                                     }
-                                    treeViewAdapter.refresh(node.childList)
+                                    treeViewAdapter.refresh(treeNodes)
                                 }
                             }
 
