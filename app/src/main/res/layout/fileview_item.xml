@@ -4,13 +4,13 @@
               android:orientation="horizontal"
               xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <CheckBox android:id="@+id/chbItem"
+    <CheckBox android:id="@+id/fileViewChbItem"
               android:gravity="center"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"/>
 
     <TextView
-            android:id="@+id/tvName"
+            android:id="@+id/fileViewTvName"
             android:gravity="center_vertical"
             android:layout_width="0dp"
             android:layout_weight="4"
@@ -19,14 +19,14 @@
             android:ellipsize="end"
             android:maxLines="1"/>
 
-    <TextView android:id="@+id/tvSize"
+    <TextView android:id="@+id/fileViewTvSize"
               android:layout_width="0dp"
               android:gravity="center"
               android:layout_weight="2"
               android:layout_height="wrap_content"
               android:text="SIZE"/>
 
-    <TextView android:id="@+id/tvDate"
+    <TextView android:id="@+id/fileViewTvDate"
               android:layout_width="0dp"
               android:gravity="center"
               android:layout_weight="4"

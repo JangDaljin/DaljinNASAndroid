@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-            android:id="@+id/sideLogin"
-            android:title="@string/sideLogin"/>
 
-    <item
-            android:id="@+id/sideLogout"
-            android:title="@string/sideLogout"
 
-    />
+
+        <item
+
+                android:id="@+id/sideLogin"
+                android:title="@string/sideLogin"/>
+
+
+        <item
+                android:id="@+id/sideDownloadSetting"
+                android:title="@string/sideDownloadSetting"/>
+
 
 </menu>

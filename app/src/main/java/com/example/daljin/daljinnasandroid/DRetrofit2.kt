@@ -1,10 +1,10 @@
 package com.example.daljin.daljinnasandroid
 
 import android.content.Context
-import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,6 +27,10 @@ interface DRetrofitInterface {
 
     @POST("/logoutNW")
     fun logout() : Call<String>
+
+    @FormUrlEncoded
+    @POST("/Download")
+    fun download(@Field("n_itemPath") path : String , @Field("n_downloadItem") downloadItem : String , @Field("n_itemType") type : String) : Call<ResponseBody>
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -45,9 +49,6 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
             }
         }
 
-
-
-
         // Web,Android,iOS 구분을 위해 User-Agent세팅
         builder.removeHeader("User-Agent").addHeader("User-Agent", "Android")
         return chain.proceed(builder.build())
@@ -63,14 +64,19 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
          if (originalResponse.headers("Set-Cookie").isNotEmpty()) {
              val cookies = mutableSetOf<String>()
              for (header in originalResponse.headers("set-cookie")) {
-                 cookies.add(header)
+                 //download시 cookie header 값 변경되므로 다운로드시 제외
+                 if(header.indexOf("fileDownload" , 0) == -1) {
+                     cookies.add(header)
+                 }
              }
 
-             // Preference에 cookies를 넣어주는 작업을 수행
-             val sharedPreferences = context.getSharedPreferences("DaljinNAS" , Context.MODE_PRIVATE)
-             val editor = sharedPreferences.edit()
-             editor.putStringSet("Cookie" , cookies)
-             editor.commit()
+             if(cookies.size !=0) {
+                 // Preference에 cookies를 넣어주는 작업을 수행
+                 val sharedPreferences = context.getSharedPreferences("DaljinNAS" , Context.MODE_PRIVATE)
+                 val editor = sharedPreferences.edit()
+                 editor.putStringSet("Cookie" , cookies)
+                 editor.commit()
+             }
          }
          return originalResponse
      }
@@ -80,8 +86,8 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
 fun DRetrofit(context : Context) : DRetrofitInterface
 {
     val client = OkHttpClient().newBuilder()
-        .addNetworkInterceptor(ReceivedCookiesInterceptor(context))
         .addNetworkInterceptor(AddCookiesInterceptor(context))
+        .addNetworkInterceptor(ReceivedCookiesInterceptor(context))
         .build()
 
 
@@ -100,14 +106,27 @@ object DaljinNodeWebLoginData {
     var id : String = ""
     var grade : String = ""
     var maxStorage : Long = 0L
+    var isAuthenticated = false
 
-    var isAuthenticated = (id != "" && grade != "" && maxStorage != 0L )
+    fun Authenticate(id : String = "", grade : String = "" , maxStorage : Long = 0) : Boolean{
+        if(id != "" && grade != "" && maxStorage > 0) {
+            this.id = id
+            this.grade = grade
+            this.maxStorage = maxStorage
+            isAuthenticated = true
+        }
+        else {
+            isAuthenticated = false
+        }
+        return isAuthenticated
+    }
 }
 
 //로그인 요청
 fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , callback : (Boolean , String?)-> Unit) {
     DRetrofit(context).login(ID , PW).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
+            DaljinNodeWebLoginData.Authenticate()
             callback.invoke(false , null)
         }
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
@@ -115,12 +134,11 @@ fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , c
                 val parser = JSONObject(response.body())
                 when(parser.getBoolean("error")){
                     true -> {
+                        DaljinNodeWebLoginData.Authenticate()
                         callback.invoke(true , null)
                     }
                     false -> {
-                        DaljinNodeWebLoginData.id = parser.getString("id")
-                        DaljinNodeWebLoginData.grade = parser.getString("grade")
-                        DaljinNodeWebLoginData.maxStorage = parser.getLong("max_storage")
+                        DaljinNodeWebLoginData.Authenticate(parser.getString("id") , parser.getString("grade") , parser.getLong("max_storage"))
                         callback.invoke(true , response.body())
                     }
                 }
@@ -133,7 +151,6 @@ fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , c
 fun DaljinNodeWebGetFileList(context : Context, path : String = "", callback: (Boolean, String?) -> Unit) {
     DRetrofit(context).getFileList(path).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
-            Toast.makeText(context , "서버와 연결이 불가능합니다." , Toast.LENGTH_SHORT).show()
             callback.invoke(false , null)
         }
 
@@ -145,6 +162,20 @@ fun DaljinNodeWebGetFileList(context : Context, path : String = "", callback: (B
     })
 }
 
+//다운로드 요청
+fun DaljinNodeWebDownload(context : Context , path : String , item : String , type : String , callback: (Boolean , ResponseBody?)->Unit) {
+    DRetrofit(context).download(path , item , type).enqueue(object : Callback<ResponseBody> {
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+            callback(false , null)
+        }
+
+        override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
+            if(response.isSuccessful) {
+               callback(true , response.body())
+            }
+        }
+    })
+}
 
 
 
