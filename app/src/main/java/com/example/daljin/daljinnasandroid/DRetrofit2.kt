@@ -92,8 +92,8 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8000")
-        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        //.baseUrl("http://10.0.2.2:8000")
+        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
         //.addConverterFactory(GsonConverterFactory.create())

@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fileview_item.view.*
 
 
-class FileViewItem(val size : String
+class FileViewItem(val size : Long
                    , val ctime : String
                    , val type : String
                    , val name : String
@@ -74,7 +74,7 @@ class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, 
                 item.isChecked = isChecked
             }
         }
-        viewHolder.tvSize.text = item.size
+        viewHolder.tvSize.text = fileSizeConverter(item.size)
         viewHolder.tvDate.text = item.ctime
     }
 

@@ -9,6 +9,8 @@ import android.os.Environment
 import android.os.IBinder
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -42,6 +44,10 @@ class FileActivity : AppCompatActivity() {
     private lateinit var downloadService : DownloadService
     private lateinit var downloadServiceServiceBinder : DownloadService.DownloadServiceBinder
     private var isService = false
+
+    private lateinit var notificationManager : NotificationManagerCompat
+    private lateinit var downloadNotification : NotificationCompat.Builder
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,14 +96,26 @@ class FileActivity : AppCompatActivity() {
             }
         }
 
-        //서비스 시작
+        //다운로드 서비스 시작
         bindService(
             Intent(this@FileActivity, DownloadService::class.java),
             downloadServiceConnection,
             Context.BIND_AUTO_CREATE
         )
-        Log.d("DALJIN" , "TT")
 
+
+        //알림 매니저 설정
+        notificationManager = NotificationManagerCompat.from(this@FileActivity)
+
+        //다운로드 알림 설정
+        downloadNotification = NotificationCompat.Builder(this@FileActivity , "Daljin")
+            .setSmallIcon(R.drawable.downloadicon)
+            .setContentTitle("DaljinNAS")
+            .setContentText("다운로드")
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setProgress(100 , 0 , false)
     }
 
     override fun onStart() {
@@ -130,14 +148,28 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-
-
-
-
-
-                val downloadPath = filesDir.path
+                downloadPath = filesDir.path
                 val checkedFileList = fileViewItemList.filter{it.isChecked}
                 val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
+
+                notificationManager.notify(2 , downloadNotification.build())
+                var totalSize = 0L
+                var curSize = 0L
+                var percentage = 0
+                checkedFileList.forEach{ totalSize += it.size }
+
+
+                downloadService.progressCallback = {
+                    curSize += it
+                    val curProgress = (100L * curSize / totalSize).toInt()
+                    if(percentage < curProgress)
+                    {
+                        downloadNotification.setProgress(100 , curProgress , false)
+                            .setContentText("${fileSizeConverter(curSize)} / ${fileSizeConverter(totalSize)}")
+                        notificationManager.notify(2 , downloadNotification.build())
+                        percentage = curProgress
+                    }
+                }
 
                 downloadService.overWriteCallback = {
                     when(writingMode) {
@@ -151,8 +183,12 @@ class FileActivity : AppCompatActivity() {
                 }
                 downloadService.downloadEndCallback = {
                     Toast.makeText(this@FileActivity , "다운로드 완료" , Toast.LENGTH_SHORT).show()
+                    Thread.sleep(1000) // 푸시 알림 싱크를 위해 1초 후에 종료 알림
+                    downloadNotification.setContentText("다운로드 완료")
+                        .setProgress(0,0,false)
+                        .setOngoing(false)
+                    notificationManager.notify(2 , downloadNotification.build())
                 }
-                downloadService.progressCallback
                 downloadService.startDownload(fileList , downloadPath)
                 return@OnNavigationItemSelectedListener true
             }
@@ -265,7 +301,7 @@ class FileActivity : AppCompatActivity() {
 
 
                                         val fileViewItem = FileViewItem(
-                                            fileSizeConverter(size),
+                                            size,
                                             ctime,
                                             type,
                                             name,

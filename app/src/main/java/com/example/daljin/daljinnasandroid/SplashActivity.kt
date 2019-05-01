@@ -10,12 +10,12 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-//        Thread().run{
-//            Thread.sleep(1500)
-//            startActivity(Intent(this@SplashActivity , FileActivity::class.java))
-//            finish()
-//        }
+        Thread().run{
+            Thread.sleep(1500)
+            startActivity(Intent(this@SplashActivity , FileActivity::class.java))
+            finish()
+        }
 
-        startActivity(Intent(this@SplashActivity , TestActivity::class.java))
+        //startActivity(Intent(this@SplashActivity , TestActivity::class.java))
     }
 }

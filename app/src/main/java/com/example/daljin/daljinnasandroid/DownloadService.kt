@@ -4,7 +4,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
@@ -24,13 +23,10 @@ class DownloadService : Service(){
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        Log.d("DALJIN" , "FUCKING33")
         return mBinder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        Log.d("DALJIN" , "FUCKING44")
         return super.onStartCommand(intent, flags, startId)
     }
 
