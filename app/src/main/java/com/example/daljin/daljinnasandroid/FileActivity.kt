@@ -1,7 +1,12 @@
 package com.example.daljin.daljinnasandroid
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.Environment
+import android.os.IBinder
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
 import android.support.v7.app.AppCompatActivity
@@ -10,22 +15,33 @@ import android.util.Log
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsideheader.*
-import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
-import java.io.FileOutputStream
 
 class FileActivity : AppCompatActivity() {
 
+    //탐색기 현재 위치
     private var path: String = ""
+
+    //파일뷰 관련 변수
     private var fileViewItemList = mutableListOf<FileViewItem>()
     private lateinit var fileViewAdapter: FileViewAdapter
 
+    //디렉토리뷰 관련 변수
     private var directoryViewItemList = mutableListOf<DirectoryViewItem>()
     private lateinit var directoryViewAdapter : DirectoryViewAdapter
+
+    //다운로드 관련 변수
+    private var downloadPath = ""
+    private val OVERWIRTE = 1
+    private val IGNORE = 2
+    private var writingMode = 1
+    private lateinit var downloadServiceConnection: ServiceConnection
+    private lateinit var downloadService : DownloadService
+    private lateinit var downloadServiceServiceBinder : DownloadService.DownloadServiceBinder
+    private var isService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +76,28 @@ class FileActivity : AppCompatActivity() {
             fileViewAdapter.toggleAll(isChecked)
         }
 
+
+        //다운로드 서비스 초기화
+        downloadServiceConnection = object : ServiceConnection {
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isService = false
+            }
+
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                downloadServiceServiceBinder = service as DownloadService.DownloadServiceBinder
+                downloadService = downloadServiceServiceBinder.getService()
+                isService = true
+            }
+        }
+
+        //서비스 시작
+        bindService(
+            Intent(this@FileActivity, DownloadService::class.java),
+            downloadServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+        Log.d("DALJIN" , "TT")
+
     }
 
     override fun onStart() {
@@ -72,12 +110,12 @@ class FileActivity : AppCompatActivity() {
         invalidate()
     }
 
+    //하단 메뉴
     private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navRefresh -> {
                 invalidate()
             }
-
 
             R.id.navMkdir -> {
 
@@ -88,43 +126,41 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navUpload -> {
-
                 Log.d("DALJIN" , filesDir.absolutePath)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
 
-                fileViewItemList.filter{ it.isChecked }
-                    .forEach {
-                    DaljinNodeWebDownload(this@FileActivity , path , it.fullname , it.type) {
-                        error , body ->
-                        if(body is ResponseBody) {
-                            var file = File(filesDir ,it.fullname)
-                            if(file.exists()) {
-                                file.delete()
-                            }
-                            file.createNewFile()
 
-                            var ips = body.byteStream()
-                            var fos = FileOutputStream(file , true)
-                            var buffer = ByteArray(1024)
-                            var len = 0
-                            while(true) {
-                                len = ips.read(buffer)
-                                if(len == -1) break
-                                fos.write(buffer , 0 , len)
-                            }
-                            fos.close()
-                        }
+
+
+
+                val downloadPath = filesDir.path
+                val checkedFileList = fileViewItemList.filter{it.isChecked}
+                val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
+
+                downloadService.overWriteCallback = {
+                    when(writingMode) {
+                        IGNORE -> false
+                        OVERWIRTE-> true
+                        else -> true
                     }
                 }
-
+                downloadService.errorCallback = {
+                    Toast.makeText(this@FileActivity , "다운로드 에러" , Toast.LENGTH_SHORT).show()
+                }
+                downloadService.downloadEndCallback = {
+                    Toast.makeText(this@FileActivity , "다운로드 완료" , Toast.LENGTH_SHORT).show()
+                }
+                downloadService.progressCallback
+                downloadService.startDownload(fileList , downloadPath)
                 return@OnNavigationItemSelectedListener true
             }
         }
         false
     }
 
+    //우측 메뉴
     private val sideNavigationViewItemSelectedList = NavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.sideLogin -> {
@@ -150,8 +186,21 @@ class FileActivity : AppCompatActivity() {
                 }
                 true
             }
-            R.id.sideDownloadSetting -> {
+            R.id.sideExternalStorage -> {
 
+                downloadPath = filesDir.path
+                true
+            }
+            R.id.sideInternalStorage -> {
+                downloadPath = Environment.getExternalStorageDirectory().path
+                true
+            }
+            R.id.sideOverwrite -> {
+                writingMode = OVERWIRTE
+                true
+            }
+            R.id.sideIgnore -> {
+                writingMode = IGNORE
                 true
             }
             else -> {
@@ -277,6 +326,9 @@ class FileActivity : AppCompatActivity() {
     }
 
 }
+
+
+
 
 
 

@@ -92,8 +92,8 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        //.baseUrl("http://10.0.2.2:8000")
-        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        .baseUrl("http://10.0.2.2:8000")
+        //.baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
         //.addConverterFactory(GsonConverterFactory.create())
@@ -160,6 +160,12 @@ fun DaljinNodeWebGetFileList(context : Context, path : String = "", callback: (B
             }
         }
     })
+}
+
+fun DaljinNodeWebDownload(context : Context , pathNitem : String , type : String , callback: (Boolean , ResponseBody?)->Unit) {
+    val path = pathNitem.substringBeforeLast('/')
+    val filename = pathNitem.substringAfterLast('/')
+    DaljinNodeWebDownload(context , path , filename , type , callback)
 }
 
 //다운로드 요청

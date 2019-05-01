@@ -2,18 +2,41 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-
-
         <item
-
                 android:id="@+id/sideLogin"
                 android:title="@string/sideLogin"/>
 
+        <item android:title="다운로드경로 설정">
+                <menu>
+                        <group android:id="@+id/sideGroupPathSetting">
+                                <item
+                                        android:id="@+id/sideInternalStorage"
+                                        android:title="내장메모리">
+                                </item>
 
-        <item
-                android:id="@+id/sideDownloadSetting"
-                android:title="@string/sideDownloadSetting"/>
+                                <item
+                                        android:id="@+id/sideExternalStorage"
+                                       android:title="외장메모리">
+                                </item>
+                        </group>
+                </menu>
+        </item>
 
+        <item android:title="저장방식 설정">
+                <menu>
+                        <group android:id="@+id/sideGroupWriteSetting">
+                                <item
+                                        android:id="@+id/sideOverwrite"
+                                        android:title="덮어쓰기">
+                                </item>
+
+                                <item
+                                        android:id="@+id/sideIgnore"
+                                        android:title="넘어가기">
+                                </item>
+                        </group>
+                </menu>
+        </item>
 
 </menu>
+
