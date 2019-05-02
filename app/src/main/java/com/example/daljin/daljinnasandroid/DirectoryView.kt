@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import kotlinx.android.synthetic.main.directoryview_item.view.*
 
 class DirectoryViewItem(
@@ -13,13 +14,15 @@ class DirectoryViewItem(
 )
 
 class DirectoryViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+    val img = itemView.directoryViewImg
     val tvName = itemView.directoryViewTvName
-    val linearLyaout = itemView.linearLayout
+    val Layout = itemView.linearLayout
 }
 
 class DirectoryViewAdapter(context : Context, var items : MutableList<DirectoryViewItem>, var callback : (String)->Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
+    val returnImage = ContextCompat.getDrawable(context , R.drawable.returnicon)
+    val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
 
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         var layoutInflater = LayoutInflater.from(parent.context)
@@ -27,29 +30,32 @@ class DirectoryViewAdapter(context : Context, var items : MutableList<DirectoryV
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = items[position]
+        val item = items[holder.adapterPosition]
         var viewHolder = holder as DirectoryViewHolder
 
-        val iconWidth= viewHolder.tvName.textSize.toInt()
-        val iconHeight  = viewHolder.tvName.textSize.toInt()
-        val iconPadding : Int = viewHolder.tvName.textSize.toInt()/2
+        if(item.Name == "..") {
+            viewHolder.img.setImageDrawable(returnImage)
+        }
+        else {
+            viewHolder.img.setImageDrawable(directoryImage)
+        }
 
-
-        viewHolder.linearLyaout.apply {
+        viewHolder.Layout.apply {
             setOnClickListener {
+                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.clickanim))
                 callback.invoke(viewHolder.tvName.text.toString())
             }
         }
-
-        directoryImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight ) }
         viewHolder.tvName.apply {
-            compoundDrawablePadding = iconPadding
-            setCompoundDrawables(directoryImage, null, null, null)
             text = item.Name
         }
     }
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
 }

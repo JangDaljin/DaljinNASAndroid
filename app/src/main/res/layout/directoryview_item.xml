@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/linearLayout"
             android:orientation="horizontal"
-            android:background="@drawable/linearlayout_shape"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginBottom="3dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-            android:layout_gravity="center_vertical"
-            android:textSize="20dp"
-            android:paddingStart="20dp"
-            android:textColor="#000000"
-            android:id="@+id/directoryViewTvName"
-            android:gravity="center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ROOT"
-            android:maxLines="1"
-            android:padding="10dp"/>
+    <ImageView
+            android:id="@+id/directoryViewImg"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/directoryicon"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
 
-</LinearLayout>
+    <TextView
+            android:id="@+id/directoryViewTvName"
+            android:layout_toRightOf="@+id/directoryViewImg"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/ssangmundongx"
+            android:textSize="20dp"
+            android:textColor="@color/dodgerblue"
+            android:gravity="center_vertical"
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:text="ROOT"/>
+
+    <TextView
+            android:layout_below="@+id/directoryViewImg"
+            android:background="@color/dimgray"
+            android:layout_width="380dp"
+              android:layout_height="1dp"/>
+
+</RelativeLayout>
 

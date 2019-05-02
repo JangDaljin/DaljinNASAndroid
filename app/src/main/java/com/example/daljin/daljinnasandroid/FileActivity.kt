@@ -1,6 +1,9 @@
 package com.example.daljin.daljinnasandroid
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
@@ -11,15 +14,13 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsideheader.*
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class FileActivity : AppCompatActivity() {
 
@@ -78,11 +79,6 @@ class FileActivity : AppCompatActivity() {
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
         rightSideView.setNavigationItemSelectedListener(sideNavigationViewItemSelectedList)
 
-        chbAll.setOnCheckedChangeListener { buttonView, isChecked ->
-            fileViewAdapter.toggleAll(isChecked)
-        }
-
-
         //다운로드 서비스 초기화
         downloadServiceConnection = object : ServiceConnection {
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -130,6 +126,23 @@ class FileActivity : AppCompatActivity() {
         invalidate()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.optionmenu , menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.optionAllCheck -> {
+                fileViewAdapter.changeAllCheck(true)
+            }
+            R.id.optionAllNotCheck -> {
+                fileViewAdapter.changeAllCheck(false)
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         invalidate()
@@ -143,7 +156,6 @@ class FileActivity : AppCompatActivity() {
             }
 
             R.id.navMkdir -> {
-
                 val et = EditText(this@FileActivity)
                 AlertDialog.Builder(this@FileActivity)
                     .setTitle("폴더생성")
@@ -210,8 +222,6 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
-                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
                 downloadPath = filesDir.path
                 val checkedFileList = fileViewItemList.filter{it.isChecked}
                 val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
@@ -222,6 +232,13 @@ class FileActivity : AppCompatActivity() {
                 var percentage = 0
                 checkedFileList.forEach{ totalSize += it.size }
 
+                if(totalSize == 0L) {
+                    Toast.makeText(this@FileActivity , "사이즈가 0입니다" , Toast.LENGTH_SHORT).show()
+                    return@OnNavigationItemSelectedListener true
+                }
+
+                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
+                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
 
                 downloadService.progressCallback = {
                     curSize += it
@@ -432,6 +449,9 @@ class FileActivity : AppCompatActivity() {
             else -> return false
         }
     }
+
+
+
 
 }
 

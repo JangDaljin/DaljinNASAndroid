@@ -1,12 +1,12 @@
 package com.example.daljin.daljinnasandroid
 
 import android.content.Context
-import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import kotlinx.android.synthetic.main.fileview_item.view.*
 
 
@@ -20,16 +20,19 @@ class FileViewItem(val size : Long
 )
 
 class FileViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+    val img = itemView.fileViewImage
     val chbItem = itemView.fileViewChbItem
     val tvName = itemView.fileViewTvName
     val tvSize  = itemView.fileViewTvSize
     val tvDate  = itemView.fileViewTvDate
+    val Layout = itemView.fileViewLayout
 }
 
-class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, var callback : (String)->Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, var callback : ((String)->Unit)?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val fileImage = ContextCompat.getDrawable(context , R.drawable.fileicon)
     private val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
+    private val fileImage = ContextCompat.getDrawable(context , R.drawable.fileicon)
+
 
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         var layoutInflater = LayoutInflater.from(parent.context)
@@ -37,40 +40,38 @@ class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, 
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = items[position]
+        val item = items[holder.adapterPosition]
         var viewHolder = holder as FileViewHolder
 
-        val iconWidth= viewHolder.tvName.textSize.toInt()
-        val iconHeight  = viewHolder.tvName.textSize.toInt()
-        val iconPadding : Int = viewHolder.tvName.textSize.toInt()/2
-
-        when(item.type) {
-            "directory" -> {
-                directoryImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight ) }
-                viewHolder.tvName.apply {
-                    compoundDrawablePadding = iconPadding
-                    setCompoundDrawables(directoryImage, null, null, null)
-                    setTextColor(Color.BLUE)
-                    setOnClickListener {
-                        callback.invoke(viewHolder.tvName.text.toString())
-                    }
-                }
+        if(item.type == "directory") {
+            viewHolder.img.setImageDrawable(directoryImage)
+            viewHolder.tvName.apply {
+                setTextColor(ContextCompat.getColor(context , R.color.dodgerblue))
             }
-            else -> {
-                fileImage?.apply { setBounds(0 , 0 , iconWidth, iconHeight) }
-                viewHolder.tvName.apply{
-                    setTextColor(Color.BLACK)
-                    compoundDrawablePadding = iconPadding
-                    setCompoundDrawables(fileImage , null , null , null)
-                }
+        }
+        else {
+            viewHolder.img.setImageDrawable(fileImage)
+            viewHolder.tvName.apply {
+                setTextColor(ContextCompat.getColor(context , R.color.dimgray))
             }
         }
 
         viewHolder.tvName.text = item.fullname
 
+
+        viewHolder.Layout.apply {
+            setOnClickListener {
+                item.isChecked = !item.isChecked
+                viewHolder.chbItem.isChecked = item.isChecked
+                viewHolder.chbItem.background = ContextCompat.getDrawable(context , R.drawable.fileviewcheckbox)
+                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.clickanim))
+            }
+        }
+
         viewHolder.chbItem.apply {
             isChecked = item.isChecked
             setOnClickListener {
+                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.clickanim))
                 item.isChecked = isChecked
             }
         }
@@ -82,8 +83,11 @@ class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, 
         return items.size
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
 
-    fun toggleAll(t : Boolean) {
+    fun changeAllCheck(t : Boolean) {
         items.forEach { it.isChecked = t }
         notifyDataSetChanged()
     }

@@ -1,38 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal"
-              xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:id="@+id/fileViewLayout"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <CheckBox android:id="@+id/fileViewChbItem"
-              android:gravity="center"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
+
+    <ImageView
+            android:id="@+id/fileViewImage"
+            android:src="@drawable/fileicon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+    />
 
     <TextView
             android:id="@+id/fileViewTvName"
+            android:fontFamily="@font/ssangmundongx"
+            android:layout_toRightOf="@+id/fileViewImage"
+            android:textSize="14dp"
+            android:textColor="@color/dimgray"
+            android:layout_alignTop="@+id/fileViewChbItem"
             android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_weight="4"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
-            android:text="NAME"
-            android:ellipsize="end"
-            android:maxLines="1"/>
+            android:text="NAME"/>
 
     <TextView android:id="@+id/fileViewTvSize"
-              android:layout_width="0dp"
-              android:gravity="center"
-              android:layout_weight="2"
+              android:layout_toRightOf="@+id/fileViewImage"
+              android:fontFamily="@font/nanum"
+              android:textSize="10dp"
+              android:textColor="@color/steelblue"
+              android:layout_below="@+id/fileViewTvName"
+              android:layout_width="320dp"
               android:layout_height="wrap_content"
+              android:layout_marginTop="2dp"
+              android:layout_marginBottom="2dp"
               android:text="SIZE"/>
 
     <TextView android:id="@+id/fileViewTvDate"
-              android:layout_width="0dp"
-              android:gravity="center"
-              android:layout_weight="4"
+              android:textSize="10dp"
+              android:textColor="@color/steelblue"
+              android:layout_toRightOf="@+id/fileViewImage"
+              android:layout_below="@id/fileViewTvSize"
+              android:layout_width="320dp"
               android:layout_height="wrap_content"
+              android:layout_marginBottom="10dp"
               android:text="DATE"/>
 
+    <CheckBox android:id="@+id/fileViewChbItem"
+              android:button="@null"
+              android:background="@drawable/fileviewcheckbox"
+              android:layout_alignParentRight="true"
+              android:layout_centerVertical="true"
+              android:layout_marginLeft="5dp"
+              android:layout_width="30dp"
+              android:layout_height="30dp"/>
 
-</LinearLayout>
+    <TextView android:layout_width="match_parent"
+              android:layout_centerHorizontal="true"
+              android:layout_height="1dp"
+              android:layout_below="@+id/fileViewTvDate"
+              android:background="@color/dimgray"/>
+</RelativeLayout>
 
