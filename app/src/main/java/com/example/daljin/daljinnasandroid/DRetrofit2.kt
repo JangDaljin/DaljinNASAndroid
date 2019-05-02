@@ -132,6 +132,13 @@ object DaljinNodeWebLoginData {
         }
         return isAuthenticated
     }
+
+    fun Logout() {
+        id = ""
+        grade = ""
+        maxStorage = 0
+        isAuthenticated = false
+    }
 }
 
 //로그인 요청
@@ -217,14 +224,14 @@ fun DaljinNodeWebMkdir(context : Context , path : String , name : String , callb
 fun DaljinNodeWebRemove(context : Context , path : String , list : List<Pair<String , String>> , callback : (Boolean)->Unit ) {
 
     val sb = StringBuilder()
-    sb.append("{ ")
+    sb.append("[ ")
     for(i in 0 until list.size) {
-        sb.append( "$i : { type : '${list[i].first}' , name : '${list[i].second}' }" )
+        sb.append( "{ \"type\" : \"${list[i].first}\" , \"name\" : \"${list[i].second}\" }" )
         if(i != list.size-1) {
             sb.append(" , ")
         }
     }
-    sb.append(" }")
+    sb.append(" ]")
 
     Log.d("DALJIN" , sb.toString())
     DRetrofit(context).remove(path , sb.toString()).enqueue(object : Callback<String> {
@@ -235,6 +242,27 @@ fun DaljinNodeWebRemove(context : Context , path : String , list : List<Pair<Str
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
                 callback(true)
+            }
+        }
+    })
+}
+
+fun DaljinNodeWebLogout(context : Context , callback : (Boolean)->Unit) {
+    DRetrofit(context).logout().enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback(false)
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if (response.isSuccessful) {
+                var parser = JSONObject(response.body())
+                when (parser.getBoolean("error")) {
+                    true -> callback(false)
+                    false -> {
+                        DaljinNodeWebLoginData.Logout()
+                        callback(true)
+                    }
+                }
             }
         }
     })

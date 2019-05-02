@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">DaljinNASAndroid</string>
     <string name="title_activity_file">FileActivity</string>
-    <string name="bottomMkdir">폴더만들기</string>
+    <string name="bottomMkdir">폴더생성</string>
     <string name="bottomRm">삭제</string>
     <string name="bottomUpload">업로드</string>
     <string name="bottomDownload">다운로드</string>
     <string name="bottomRefresh">새로고침</string>
     <string name="sideLogin">로그인</string>
     <string name="sideLogout">로그아웃</string>
-    <string name="sideDownloadSetting">경로 설정</string>
+    <string name="sideDownloadSetting">경로설정</string>
 </resources>

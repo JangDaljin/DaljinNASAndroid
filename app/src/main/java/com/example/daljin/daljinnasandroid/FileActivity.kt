@@ -152,10 +152,11 @@ class FileActivity : AppCompatActivity() {
                         dialog , which ->
                         DaljinNodeWebMkdir(this@FileActivity , path , et.text.toString()) {
                             if(it) {
-                                Toast.makeText(this@FileActivity , "파일 삭제 완료" , Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@FileActivity , "파일 생성 완료" , Toast.LENGTH_SHORT).show()
+                                invalidate()
                             }
                             else {
-                                Toast.makeText(this@FileActivity , "파일 삭제 실패" , Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@FileActivity , "파일 생성 실패" , Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -181,6 +182,7 @@ class FileActivity : AppCompatActivity() {
                         DaljinNodeWebRemove(this@FileActivity , path , removeList) {
                             if(it) {
                                 Toast.makeText(this@FileActivity , "파일 삭제 완료" , Toast.LENGTH_SHORT).show()
+                                invalidate()
                             }
                             else {
                                 Toast.makeText(this@FileActivity , "파일 삭제 실패" , Toast.LENGTH_SHORT).show()
@@ -204,6 +206,7 @@ class FileActivity : AppCompatActivity() {
 
                 navBottom.menu.findItem(R.id.navDownload).isCheckable = true
                 navBottom.menu.findItem(R.id.navUpload).isCheckable = true
+                invalidate()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
@@ -272,21 +275,15 @@ class FileActivity : AppCompatActivity() {
                     startLoginActivity()
                 }
                 else {
-                    DRetrofit(this@FileActivity).logout().enqueue(object : Callback<String> {
-                        override fun onFailure(call: Call<String>, t: Throwable) {
-                            Toast.makeText(this@FileActivity, "서버 연결 불가", Toast.LENGTH_SHORT).show()
+                    DaljinNodeWebLogout(this@FileActivity) {
+                        if(it) {
+                            invalidate()
+                            startLoginActivity()
                         }
-
-                        override fun onResponse(call: Call<String>, response: Response<String>) {
-                            if (response.isSuccessful) {
-                                var parser = JSONObject(response.body())
-                                when (parser.getBoolean("error")) {
-                                    true -> Toast.makeText(this@FileActivity, "로그아웃 불가", Toast.LENGTH_SHORT).show()
-                                    false -> startLoginActivity()
-                                }
-                            }
+                        else {
+                            Toast.makeText(this@FileActivity , "로그아웃 불가" , Toast.LENGTH_SHORT).show()
                         }
-                    })
+                    }
                 }
                 true
             }
