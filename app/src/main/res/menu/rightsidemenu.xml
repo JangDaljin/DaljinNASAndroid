@@ -16,7 +16,7 @@
 
                                 <item
                                         android:id="@+id/sideExternalStorage"
-                                       android:title="외장메모리">
+                                        android:title="외장메모리">
                                 </item>
                         </group>
                 </menu>

@@ -1,6 +1,8 @@
 package com.example.daljin.daljinnasandroid
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -14,6 +16,7 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import java.io.IOException
+import java.lang.StringBuilder
 
 
 interface DRetrofitInterface {
@@ -31,6 +34,15 @@ interface DRetrofitInterface {
     @FormUrlEncoded
     @POST("/Download")
     fun download(@Field("n_itemPath") path : String , @Field("n_downloadItem") downloadItem : String , @Field("n_itemType") type : String) : Call<ResponseBody>
+
+    @FormUrlEncoded
+    @POST("/makeDirectoryNW")
+    fun mkdir(@Field("n_makeDirectory_path") path : String , @Field("n_makeDirectory_Name") name : String) : Call<String>
+
+    @FormUrlEncoded
+    @POST("/DeleteNW")
+    fun remove(@Field("n_deletePath") path : String , @Field("n_deleteList") list : String) : Call<String> // list = { i : {type : "" , name : ""} }
+
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -183,5 +195,49 @@ fun DaljinNodeWebDownload(context : Context , path : String , item : String , ty
     })
 }
 
+fun DaljinNodeWebMkdir(context : Context , path : String , name : String , callback : (Boolean)->Unit) {
+    DRetrofit(context).mkdir(path , name).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback.invoke(false)
+        }
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                val parser = JSONObject(response.body())
+                if(parser.getBoolean("error")) {
+                    callback.invoke(false)
+                }
+                else {
+                    callback.invoke(true)
+                }
+            }
+        }
+    })
+}
+
+fun DaljinNodeWebRemove(context : Context , path : String , list : List<Pair<String , String>> , callback : (Boolean)->Unit ) {
+
+    val sb = StringBuilder()
+    sb.append("{ ")
+    for(i in 0 until list.size) {
+        sb.append( "$i : { type : '${list[i].first}' , name : '${list[i].second}' }" )
+        if(i != list.size-1) {
+            sb.append(" , ")
+        }
+    }
+    sb.append(" }")
+
+    Log.d("DALJIN" , sb.toString())
+    DRetrofit(context).remove(path , sb.toString()).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback(false)
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                callback(true)
+            }
+        }
+    })
+}
 
 

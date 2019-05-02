@@ -1,9 +1,6 @@
 package com.example.daljin.daljinnasandroid
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.os.Bundle
 import android.os.Environment
 import android.os.IBinder
@@ -11,9 +8,11 @@ import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.NavigationView
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.widget.EditText
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsideheader.*
@@ -52,6 +51,7 @@ class FileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
+
 
         //파일뷰 설정
         fileView.layoutManager = LinearLayoutManager(this@FileActivity)
@@ -111,15 +111,22 @@ class FileActivity : AppCompatActivity() {
         downloadNotification = NotificationCompat.Builder(this@FileActivity , "Daljin")
             .setSmallIcon(R.drawable.downloadicon)
             .setContentTitle("DaljinNAS")
-            .setContentText("다운로드")
+            .setContentText("대기중")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setProgress(100 , 0 , false)
+
     }
 
     override fun onStart() {
         super.onStart()
+
+        //우측 메뉴 설정
+        if(!checkExternalStorageAvailable()) {
+            rightSideView.menu.findItem(R.id.sideExternalStorage).isVisible = true
+        }
+
         invalidate()
     }
 
@@ -137,22 +144,76 @@ class FileActivity : AppCompatActivity() {
 
             R.id.navMkdir -> {
 
+                val et = EditText(this@FileActivity)
+                AlertDialog.Builder(this@FileActivity)
+                    .setTitle("폴더생성")
+                    .setView(et)
+                    .setPositiveButton("만들기") {
+                        dialog , which ->
+                        DaljinNodeWebMkdir(this@FileActivity , path , et.text.toString()) {
+                            if(it) {
+                                Toast.makeText(this@FileActivity , "파일 삭제 완료" , Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                Toast.makeText(this@FileActivity , "파일 삭제 실패" , Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .setNegativeButton("취소") {
+                        dialog , which ->
+                        dialog.cancel()
+                    }
+                    .show()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navRmdir -> {
+                var checkedList = fileViewItemList.filter{it.isChecked}
+                var removeList = List(checkedList.size) {
+                    index ->
+                    Pair(checkedList[index].type , checkedList[index].fullname)
+                }
 
+                AlertDialog.Builder(this@FileActivity)
+                    .setTitle("삭제")
+                    .setMessage("정말 삭제하시겠습니까?")
+                    .setPositiveButton("네") {
+                            dialog , which ->
+                        DaljinNodeWebRemove(this@FileActivity , path , removeList) {
+                            if(it) {
+                                Toast.makeText(this@FileActivity , "파일 삭제 완료" , Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                Toast.makeText(this@FileActivity , "파일 삭제 실패" , Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .setNegativeButton("아니오") {
+                            dialog , which ->
+                        dialog.cancel()
+                    }
+                    .show()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navUpload -> {
-                Log.d("DALJIN" , filesDir.absolutePath)
+                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
+                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
+
+
+
+
+
+                navBottom.menu.findItem(R.id.navDownload).isCheckable = true
+                navBottom.menu.findItem(R.id.navUpload).isCheckable = true
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
+                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
+                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
                 downloadPath = filesDir.path
                 val checkedFileList = fileViewItemList.filter{it.isChecked}
                 val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
 
-                notificationManager.notify(2 , downloadNotification.build())
+
                 var totalSize = 0L
                 var curSize = 0L
                 var percentage = 0
@@ -178,9 +239,11 @@ class FileActivity : AppCompatActivity() {
                         else -> true
                     }
                 }
+
                 downloadService.errorCallback = {
                     Toast.makeText(this@FileActivity , "다운로드 에러" , Toast.LENGTH_SHORT).show()
                 }
+
                 downloadService.downloadEndCallback = {
                     Toast.makeText(this@FileActivity , "다운로드 완료" , Toast.LENGTH_SHORT).show()
                     Thread.sleep(1000) // 푸시 알림 싱크를 위해 1초 후에 종료 알림
@@ -188,7 +251,12 @@ class FileActivity : AppCompatActivity() {
                         .setProgress(0,0,false)
                         .setOngoing(false)
                     notificationManager.notify(2 , downloadNotification.build())
+
+                    navBottom.menu.findItem(R.id.navDownload).isCheckable = true
+                    navBottom.menu.findItem(R.id.navUpload).isCheckable = true
                 }
+
+                notificationManager.notify(2 , downloadNotification.build())
                 downloadService.startDownload(fileList , downloadPath)
                 return@OnNavigationItemSelectedListener true
             }
@@ -223,12 +291,11 @@ class FileActivity : AppCompatActivity() {
                 true
             }
             R.id.sideExternalStorage -> {
-
-                downloadPath = filesDir.path
+                downloadPath = Environment.DIRECTORY_DOWNLOADS
                 true
             }
             R.id.sideInternalStorage -> {
-                downloadPath = Environment.getExternalStorageDirectory().path
+                downloadPath = filesDir.path
                 true
             }
             R.id.sideOverwrite -> {
@@ -358,6 +425,14 @@ class FileActivity : AppCompatActivity() {
         }
         else{
             rightSideView.menu.findItem(R.id.sideLogin).title = "로그인"
+        }
+    }
+
+    private fun checkExternalStorageAvailable() : Boolean{
+        when(Environment.getExternalStorageState()) {
+            Environment.MEDIA_MOUNTED_READ_ONLY -> return false
+            Environment.MEDIA_MOUNTED -> return true
+            else -> return false
         }
     }
 
