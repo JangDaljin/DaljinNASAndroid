@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.content.Intent
 import android.os.Bundle

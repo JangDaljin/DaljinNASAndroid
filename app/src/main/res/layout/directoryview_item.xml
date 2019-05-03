@@ -5,8 +5,8 @@
             android:id="@+id/linearLayout"
             android:orientation="horizontal"
             android:paddingTop="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
             xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
@@ -15,8 +15,8 @@
             android:src="@drawable/directoryicon"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
+            android:layout_width="25dp"
+            android:layout_height="25dp"/>
 
     <TextView
             android:id="@+id/directoryViewTvName"
@@ -25,8 +25,9 @@
             android:fontFamily="@font/alienx"
             android:textSize="20dp"
             android:textColor="@color/dodgerblue"
+            android:layout_alignParentRight="true"
             android:gravity="center_vertical"
-            android:layout_width="380dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="ROOT"/>
 
@@ -34,7 +35,8 @@
             android:layout_below="@+id/directoryViewImg"
             android:background="@color/dimgray"
             android:layout_width="380dp"
-              android:layout_height="1dp"/>
+            android:layout_centerHorizontal="true"
+            android:layout_height="1dp"/>
 
 </RelativeLayout>
 

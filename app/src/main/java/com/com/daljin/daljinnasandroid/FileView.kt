@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.content.Context
 import android.support.v4.content.ContextCompat

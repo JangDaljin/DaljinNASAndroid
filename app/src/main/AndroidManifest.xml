@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.daljin.daljinnasandroid">
+          package="com.daljin.daljinnasandroid">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -9,7 +9,7 @@
     <application
             android:allowBackup="true"
             android:icon="@drawable/daljin_logo_vertical"
-            android:label="달진나스"
+            android:label="DaljinNAS"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
@@ -28,12 +28,7 @@
         </activity>
         <activity
                 android:name=".FileActivity"
-                android:label="">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+        android:label="">
         </activity>
         <activity android:name=".LoginActivity">
         </activity>

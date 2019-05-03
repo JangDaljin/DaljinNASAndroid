@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.app.Service
 import android.content.Intent

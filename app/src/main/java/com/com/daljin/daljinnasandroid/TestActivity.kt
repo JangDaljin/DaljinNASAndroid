@@ -1,12 +1,12 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 
-class SingupActivity : AppCompatActivity() {
+class TestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_singup)
+        setContentView(R.layout.activity_test)
     }
 }

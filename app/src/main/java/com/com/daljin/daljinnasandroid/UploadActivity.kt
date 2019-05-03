@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity

@@ -1,10 +1,13 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import com.com.daljin.daljinnasandroid.RESULT_FINISH
+import com.com.daljin.daljinnasandroid.RESULT_LOGIN
 import kotlinx.android.synthetic.main.activity_login.*
 
 
@@ -22,7 +25,6 @@ class LoginActivity : AppCompatActivity() {
                     edt_PW.requestFocus()
                 }
                 else -> {
-                    Log.d("DALJIN" , "$actionId")
                     return@setOnEditorActionListener false
                 }
             }
@@ -46,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 DaljinNodeWebLogin(this@LoginActivity, edt_ID.text.toString(), edt_PW.text.toString())
                 { res , body ->
                     if(res) {
-                        setResult(RESULT_OK)
+                        setResult(RESULT_LOGIN)
                         finish()
                     }
                     else {
@@ -55,11 +57,17 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
         btn_Signup.setOnClickListener {
-
-
-
-
+                startActivity(Intent(this@LoginActivity , SingupActivity::class.java))
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when(event?.action) {
+            KeyEvent.ACTION_DOWN -> {
+                setResult(RESULT_FINISH)
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }
 

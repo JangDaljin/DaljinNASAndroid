@@ -1,4 +1,8 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
+
+
+
+
 
 fun fileSizeConverter(size : Long , count : Int = 0) : String =
     if(size / 1024 == 0L) {

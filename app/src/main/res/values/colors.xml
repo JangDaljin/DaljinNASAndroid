@@ -13,4 +13,6 @@
     <color name="logobackground">#353a40</color>
     <color name="logobackgroundtext">#a0a0a0</color>
     <color name="logobackgroundtext2">#808080</color>
+    <color name="wrong">#ff4500</color>
+    <color name="right">#a4e468</color>
 </resources>

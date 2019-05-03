@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -11,28 +11,21 @@ import android.os.IBinder
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import android.widget.Toolbar
+import com.com.daljin.daljinnasandroid.*
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsidebody.*
 import kotlinx.android.synthetic.main.rightsideheader.*
 import org.json.JSONObject
 
 class FileActivity : AppCompatActivity() {
-    //SharePreference
-    private val SP_NAME = "DaljinNAS"
-    private val SP_KEY_WRITEMODE = "WRITEMODE"
-    private val SP_KEY_DOWNLOADPATH = "DOWNLOADPATH"
-
 
     //탐색기 현재 위치
     private var path: String = ""
@@ -47,8 +40,7 @@ class FileActivity : AppCompatActivity() {
 
     //다운로드 관련 변수
     private var downloadPath = ""
-    private val OVERWIRTE = 1
-    private val IGNORE = 2
+
     private var writingMode = 1
     private lateinit var downloadServiceConnection: ServiceConnection
     private lateinit var downloadService : DownloadService
@@ -104,10 +96,10 @@ class FileActivity : AppCompatActivity() {
             group, checkedId ->
             when(checkedId) {
                 R.id.sideOverwrite -> {
-                    writingMode = OVERWIRTE
+                    writingMode = SAVE_OVERWIRTE
                 }
                 R.id.sideIgnore -> {
-                    writingMode = IGNORE
+                    writingMode = SAVE_IGNORE
                 }
             }
             getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().putInt(SP_KEY_WRITEMODE , writingMode).commit()
@@ -169,10 +161,10 @@ class FileActivity : AppCompatActivity() {
 
         val sharePreference = getSharedPreferences(SP_NAME , Context.MODE_PRIVATE)
 
-        writingMode = sharePreference.getInt(SP_KEY_WRITEMODE, OVERWIRTE)
+        writingMode = sharePreference.getInt(SP_KEY_WRITEMODE, SAVE_OVERWIRTE)
         when(writingMode) {
-            OVERWIRTE -> sideOverwrite.isChecked = true
-            IGNORE -> sideIgnore.isChecked = true
+            SAVE_OVERWIRTE -> sideOverwrite.isChecked = true
+            SAVE_IGNORE -> sideIgnore.isChecked = true
         }
 
         downloadPath = sharePreference.getString(SP_KEY_DOWNLOADPATH , filesDir.path)
@@ -212,7 +204,14 @@ class FileActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        when(resultCode) {
+            RESULT_LOGIN -> {
 
+            }
+            RESULT_FINISH -> {
+                finish()
+            }
+        }
     }
 
     //하단 메뉴
@@ -328,8 +327,8 @@ class FileActivity : AppCompatActivity() {
 
                 downloadService.overWriteCallback = {
                     when(writingMode) {
-                        IGNORE -> false
-                        OVERWIRTE-> true
+                        SAVE_IGNORE -> false
+                        SAVE_OVERWIRTE-> true
                         else -> true
                     }
                 }

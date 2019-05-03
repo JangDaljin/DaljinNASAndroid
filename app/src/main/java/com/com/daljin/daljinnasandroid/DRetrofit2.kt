@@ -1,8 +1,7 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -16,7 +15,6 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import java.io.IOException
-import java.lang.StringBuilder
 
 
 interface DRetrofitInterface {
@@ -42,6 +40,14 @@ interface DRetrofitInterface {
     @FormUrlEncoded
     @POST("/DeleteNW")
     fun remove(@Field("n_deletePath") path : String , @Field("n_deleteList") list : String) : Call<String> // list = { i : {type : "" , name : ""} }
+
+    @FormUrlEncoded
+    @POST("/checkid")
+    fun checkId(@Field("ID") ID : String) : Call<String>
+
+    @FormUrlEncoded
+    @POST("/adduserNW")
+    fun addUser(@Field("ID") ID : String , @Field("PW") PW : String , @Field("CODE") CODE: String) : Call<String>
 
 }
 
@@ -236,12 +242,12 @@ fun DaljinNodeWebRemove(context : Context , path : String , list : List<Pair<Str
     Log.d("DALJIN" , sb.toString())
     DRetrofit(context).remove(path , sb.toString()).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
-            callback(false)
+            callback.invoke(false)
         }
 
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-                callback(true)
+                callback.invoke(true)
             }
         }
     })
@@ -263,6 +269,35 @@ fun DaljinNodeWebLogout(context : Context , callback : (Boolean)->Unit) {
                         callback(true)
                     }
                 }
+            }
+        }
+    })
+}
+
+fun DaljinNodeWebCheckId(context : Context , ID : String , callback : (Boolean)->Unit) {
+    DRetrofit(context).checkId(ID).enqueue(object :  Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback.invoke(false)
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                callback.invoke(JSONObject(response.body()).getBoolean("result"))
+            }
+        }
+    })
+}
+
+fun DaljinNodeWebSignup(context : Context , ID : String , PW : String , CODE : String , callback : (Boolean , String)->Unit) {
+    DRetrofit(context).addUser(ID , PW , CODE).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback.invoke(false , "서버와 연결 불가")
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                val parser = JSONObject(response.body())
+                callback.invoke(!parser.getBoolean("error") , parser.getString("msg"))
             }
         }
     })

@@ -1,4 +1,4 @@
-package com.example.daljin.daljinnasandroid
+package com.daljin.daljinnasandroid
 
 import android.content.Context
 import android.support.v4.content.ContextCompat
@@ -21,7 +21,7 @@ class DirectoryViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
 
 class DirectoryViewAdapter(context : Context, var items : MutableList<DirectoryViewItem>, var callback : (String)->Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val returnImage = ContextCompat.getDrawable(context , R.drawable.returnicon)
+    val returnImage = ContextCompat.getDrawable(context , R.drawable.backicon)
     val directoryImage = ContextCompat.getDrawable(context , R.drawable.directoryicon)
 
     override fun onCreateViewHolder(parent : ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -102,7 +102,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="등록"/>
+                    android:text="SIGN UP"/>
 
             <Button
                     android:fontFamily="@font/ssangmundongx"
@@ -112,7 +112,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="로그인"/>
+                    android:text="SIGN IN"/>
         </LinearLayout>
 
     </LinearLayout>
