@@ -10,4 +10,7 @@
     <color name="slateblue">#6a5acd</color>
     <color name="dimgray">#696969</color>
     <color name="darkslategray">#2f4f4f</color>
+    <color name="logobackground">#353a40</color>
+    <color name="logobackgroundtext">#a0a0a0</color>
+    <color name="logobackgroundtext2">#808080</color>
 </resources>

@@ -1,4 +1,8 @@
-<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout
+        android:background="@color/logobackground"
+        android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android">
 
 
     <LinearLayout android:layout_width="match_parent"
@@ -6,17 +10,33 @@
                   android:orientation="vertical"
                   android:layout_centerInParent="true">
 
+        <ImageView
+                android:layout_gravity="center"
+                android:src="@drawable/daljin_logo_horizon"
+                android:layout_width="280dp"
+                android:layout_height="60dp"
+                android:layout_marginBottom="40dp"
+        />
+
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
             <TextView
+                    android:textColor="@color/logobackgroundtext"
                     android:text="ID"
+                    android:fontFamily="@font/ssangmundongx"
                     android:gravity="center"
+                    android:textSize="20dp"
                     android:layout_width="0dp"
                     android:layout_weight="2"
                     android:layout_height="match_parent"/>
+
             <EditText
+                    android:textSize="20dp"
+                    android:gravity="center"
+                    android:textColor="@color/logobackgroundtext"
+                    android:fontFamily="@font/nanumx"
                     android:id="@+id/edt_ID"
                     android:layout_width="0dp"
                     android:layout_weight="8"
@@ -29,12 +49,19 @@
                       android:orientation="horizontal">
 
             <TextView
+                    android:textColor="@color/logobackgroundtext"
+                    android:fontFamily="@font/ssangmundongx"
+                    android:textSize="20dp"
                     android:text="PW"
                     android:gravity="center"
                     android:layout_width="0dp"
                     android:layout_weight="2"
                     android:layout_height="match_parent"/>
             <EditText
+                    android:textSize="20dp"
+                    android:gravity="center"
+                    android:textColor="@color/logobackgroundtext"
+                    android:fontFamily="@font/nanumx"
                     android:id="@+id/edt_PW"
                     android:layout_width="0dp"
                     android:layout_weight="8"
@@ -47,13 +74,21 @@
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
-            <Button android:id="@+id/btn_Signup"
+            <Button
+                    android:textColor="#000"
+                    android:fontFamily="@font/ssangmundongx"
+                    android:textSize="15dp"
+                    android:id="@+id/btn_Signup"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="등록"/>
 
-            <Button android:id="@+id/btn_Login"
+            <Button
+                    android:fontFamily="@font/ssangmundongx"
+                    android:textSize="15dp"
+                    android:textColor="#000"
+                    android:id="@+id/btn_Login"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"

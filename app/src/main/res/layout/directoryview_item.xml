@@ -22,7 +22,7 @@
             android:id="@+id/directoryViewTvName"
             android:layout_toRightOf="@+id/directoryViewImg"
             android:layout_centerVertical="true"
-            android:fontFamily="@font/ssangmundongx"
+            android:fontFamily="@font/alienx"
             android:textSize="20dp"
             android:textColor="@color/dodgerblue"
             android:gravity="center_vertical"

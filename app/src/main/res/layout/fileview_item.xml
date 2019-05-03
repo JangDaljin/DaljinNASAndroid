@@ -21,7 +21,7 @@
 
     <TextView
             android:id="@+id/fileViewTvName"
-            android:fontFamily="@font/ssangmundongx"
+            android:fontFamily="@font/alienx"
             android:layout_toRightOf="@+id/fileViewImage"
             android:textSize="14dp"
             android:textColor="@color/dimgray"
