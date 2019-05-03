@@ -3,9 +3,4 @@
 
     <item android:drawable="@drawable/splash_gradient" />
 
-    <item>
-        <bitmap android:src="@drawable/daljin_logo_vertical"
-                android:gravity="center" />
-    </item>
-
 </layer-list>

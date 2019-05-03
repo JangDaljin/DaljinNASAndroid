@@ -1,14 +1,11 @@
 package com.example.daljin.daljinnasandroid
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class LoginActivity : AppCompatActivity() {
@@ -16,6 +13,34 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+
+        edt_ID.setOnEditorActionListener {
+            textView , actionId , keyEvent ->
+            when(actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    edt_PW.requestFocus()
+                }
+                else -> {
+                    Log.d("DALJIN" , "$actionId")
+                    return@setOnEditorActionListener false
+                }
+            }
+            return@setOnEditorActionListener true
+        }
+
+        edt_PW.setOnEditorActionListener {
+            v, actionId, event ->
+            when(actionId) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    btn_Login.performClick()
+                }
+                else -> {
+                    return@setOnEditorActionListener false
+                }
+            }
+            return@setOnEditorActionListener true
+        }
 
         btn_Login.setOnClickListener {
                 DaljinNodeWebLogin(this@LoginActivity, edt_ID.text.toString(), edt_PW.text.toString())
@@ -29,7 +54,12 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
         }
-        btn_Signup.setOnClickListener {  } //미구현
+        btn_Signup.setOnClickListener {
+
+
+
+
+        }
     }
 }
 

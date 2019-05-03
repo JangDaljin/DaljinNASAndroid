@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:background="@drawable/splash_gradient"
         tools:context=".SplashActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <ImageView
+            android:id="@+id/splashLogo"
+            android:layout_centerInParent="true"
+            android:src="@drawable/daljin_logo_vertical"
+            android:layout_width="150dp"
+            android:layout_height="150dp"/>
+
+</RelativeLayout>

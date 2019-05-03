@@ -5,10 +5,15 @@
                 xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical"
-                  android:layout_centerInParent="true">
+    <LinearLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerInParent="true">
 
         <ImageView
                 android:layout_gravity="center"
@@ -18,7 +23,9 @@
                 android:layout_marginBottom="40dp"
         />
 
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout
+
+                android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
@@ -41,10 +48,16 @@
                     android:layout_width="0dp"
                     android:layout_weight="8"
                     android:layout_height="wrap_content"
-                    android:hint="아이디를 입력하세요"/>
+                    android:textColorHint="@color/logobackgroundtext2"
+                    android:hint="아이디를 입력하세요"
+                    android:imeOptions="actionNext"
+                    android:maxLines="1"
+                    android:inputType="text"
+            />
         </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout
+                android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
@@ -58,6 +71,7 @@
                     android:layout_weight="2"
                     android:layout_height="match_parent"/>
             <EditText
+                    android:maxLines="1"
                     android:textSize="20dp"
                     android:gravity="center"
                     android:textColor="@color/logobackgroundtext"
@@ -67,10 +81,16 @@
                     android:layout_weight="8"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:textColorHint="@color/logobackgroundtext2"
+                    android:imeOptions="actionDone"
                     android:hint="********"/>
         </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout
+                android:layout_marginTop="5dp"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
