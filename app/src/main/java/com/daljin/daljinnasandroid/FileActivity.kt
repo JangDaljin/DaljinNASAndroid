@@ -231,14 +231,14 @@ class FileActivity : AppCompatActivity() {
                 }
             }
             REQUEST_UPLOAD-> {
-                when(requestCode) {
+                when(resultCode) {
                     RESULT_UPLOAD -> {
                         var totalSize = data!!.getLongExtra("TotalSize" , 0L)
                         var curSize = 0L
                         var percentage = 0
 
                         val fileList = mutableListOf<String>()
-                        val fileArrayList = data?.getStringArrayListExtra("uploadFiles")
+                        val fileArrayList = data.getStringArrayListExtra("uploadFiles")
                         if(fileArrayList != null) {
                             for(i in 0 until fileArrayList.size)
                             fileList.add(fileArrayList[i])
