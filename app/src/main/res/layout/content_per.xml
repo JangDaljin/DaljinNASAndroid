@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        <LinearLayout
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                    android:layout_weight="7"
+                    android:orientation="horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                <TextView
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:fontFamily="@font/alienx"
+                        android:text="인터넷"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                  android:layout_height="match_parent">
+
+                <Switch
+                        android:id="@+id/internetSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                    android:layout_weight="7"
+                    android:orientation="horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                <TextView
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:fontFamily="@font/alienx"
+                        android:text="외부저장소 쓰기"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                <Switch
+                        android:id="@+id/writeExternalSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout
+                    android:layout_weight="7"
+                    android:orientation="horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                <TextView
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:fontFamily="@font/alienx"
+                        android:text="외부저장소 읽기"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                <Switch
+                        android:id="@+id/readExternalSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

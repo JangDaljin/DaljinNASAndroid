@@ -26,10 +26,6 @@ class DownloadService : Service(){
         return mBinder
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return super.onStartCommand(intent, flags, startId)
-    }
-
     fun startDownload(fileList : List<Pair<String , String>>, downloadPath : String, cnt : Int = 0) {
 
         if(cnt > fileList.size -1) {

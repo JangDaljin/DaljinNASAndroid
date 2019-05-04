@@ -13,9 +13,16 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity
+                android:name="com.com.daljin.daljinnasandroid.PerActivity"
+                android:label="@string/title_activity_per"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <activity android:name=".SingupActivity">
         </activity>
-        <activity android:name=".UploadActivity">
+        <activity
+                android:name=".UploadActivity"
+                android:label="">
         </activity>
         <activity android:name=".TestActivity">
         </activity>
@@ -28,13 +35,17 @@
         </activity>
         <activity
                 android:name=".FileActivity"
-        android:label="">
+                android:label="">
         </activity>
         <activity android:name=".LoginActivity">
         </activity>
 
         <service
                 android:name=".DownloadService"
+                android:enabled="true">
+        </service>
+        <service
+                android:name=".UploadService"
                 android:enabled="true">
         </service>
     </application>

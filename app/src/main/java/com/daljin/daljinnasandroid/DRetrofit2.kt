@@ -1,20 +1,21 @@
 package com.daljin.daljinnasandroid
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.ResponseBody
+import com.daljin.daljinnasandroid.SP_NAME
+import okhttp3.*
+import okio.BufferedSink
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.*
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
+import java.net.URI
 
 
 interface DRetrofitInterface {
@@ -49,6 +50,10 @@ interface DRetrofitInterface {
     @POST("/adduserNW")
     fun addUser(@Field("ID") ID : String , @Field("PW") PW : String , @Field("CODE") CODE: String) : Call<String>
 
+
+    @Multipart
+    @POST("/fileUpload")
+    fun upload(@Part("n_upload_path") path : String , @Part("n_upload_files") file : MultipartBody.Part) : Call<String>
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -57,7 +62,7 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val builder = chain.request().newBuilder()
         // Preference에서 cookies를 가져오는 작업을 수행
-        val sharedPreferences = context.getSharedPreferences("DaljinNAS" , Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences(SP_NAME , Context.MODE_PRIVATE)
         val sharedPreferencesData  = sharedPreferences.getStringSet("Cookie" , mutableSetOf())
 
 
@@ -90,7 +95,7 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
 
              if(cookies.size !=0) {
                  // Preference에 cookies를 넣어주는 작업을 수행
-                 val sharedPreferences = context.getSharedPreferences("DaljinNAS" , Context.MODE_PRIVATE)
+                 val sharedPreferences = context.getSharedPreferences(SP_NAME , Context.MODE_PRIVATE)
                  val editor = sharedPreferences.edit()
                  editor.putStringSet("Cookie" , cookies)
                  editor.commit()
@@ -301,6 +306,48 @@ fun DaljinNodeWebSignup(context : Context , ID : String , PW : String , CODE : S
             }
         }
     })
+}
+
+fun DaljinNodeWebUpload(context : Context , uploadPath : String , fileUri : Uri , progressCallback: (Int) -> Unit , uploadEndCallback : (Boolean , String)->Unit) {
+    val file = File(URI(fileUri.toString()))
+    val fileBody = ProgressRequestBody(file, context.contentResolver.getType(fileUri) , progressCallback)
+    val filePart = MultipartBody.Part.createFormData("n_upload_files" , file.name , fileBody)
+
+
+    DRetrofit(context).upload(uploadPath , filePart).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            uploadEndCallback.invoke(false , "서버와 연결이 불가합니다.")
+        }
+
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                uploadEndCallback.invoke(true , response.body().toString())
+            }
+        }
+    })
+}
+
+class ProgressRequestBody(var file : File , var contentType : String ,  var callback : (Int)->Unit) : RequestBody(){
+
+    override fun writeTo(sink: BufferedSink) {
+        val fis = FileInputStream(file)
+        val buffer = ByteArray(1024)
+        var read : Int
+
+        while(true) {
+            read = fis.read(buffer)
+
+            if(read == -1) {
+                break
+            }
+
+            sink.write(buffer , 0 , read)
+            callback.invoke(read)
+        }
+    }
+
+    override fun contentType(): MediaType? = MediaType.parse("$contentType/*")
+    override fun contentLength(): Long = file.length()
 }
 
 

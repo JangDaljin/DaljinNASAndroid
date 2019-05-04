@@ -95,6 +95,8 @@
                     android:background="@color/logobackground"
                     android:layout_alignParentBottom="true"
                     app:menu="@menu/bottommenu"
+                    app:itemIconTint="@drawable/bottomnavitem"
+                    app:itemTextColor="@drawable/bottomnavitem"
                     app:labelVisibilityMode="labeled"/>
 
         </RelativeLayout>

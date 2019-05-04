@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:padding="10dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <ImageButton
+            android:background="#FFF"
+            android:padding="0dp"
+            android:scaleType="fitCenter"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/uploadItemImage"
+            android:src="@drawable/minusicon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
+    <TextView
+            android:fontFamily="@font/alienx"
+            android:id="@+id/uploadFileName"
+            android:textSize="20dp"
+            android:textColor="#000"
+            android:layout_toRightOf="@+id/uploadItemImage"
+            android:layout_alignParentRight="true"
+            android:layout_width="0dp"
+            android:text="TEST"
+              android:layout_height="wrap_content"/>
+
+    <TextView
+            android:fontFamily="@font/alienx"
+            android:id="@+id/uploadFileSize"
+            android:textSize="10dp"
+            android:text="TEST"
+            android:textColor="#000"
+            android:layout_below="@+id/uploadFileName"
+            android:layout_toRightOf="@+id/uploadItemImage"
+            android:layout_alignParentRight="true"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
+</RelativeLayout>

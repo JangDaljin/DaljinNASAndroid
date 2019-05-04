@@ -19,7 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import com.com.daljin.daljinnasandroid.*
+import com.daljin.daljinnasandroid.*
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsidebody.*
 import kotlinx.android.synthetic.main.rightsideheader.*
@@ -45,10 +45,18 @@ class FileActivity : AppCompatActivity() {
     private lateinit var downloadServiceConnection: ServiceConnection
     private lateinit var downloadService : DownloadService
     private lateinit var downloadServiceServiceBinder : DownloadService.DownloadServiceBinder
-    private var isService = false
+    private var isDoingDownloadService = false
 
+    //업로드 관련 변수
+    private lateinit var uploadServiceConnection: ServiceConnection
+    private lateinit var uploadService : UploadService
+    private lateinit var uploadServiceServiceBinder : UploadService.UploadServiceBinder
+
+    //알림 관련 변수
     private lateinit var notificationManager : NotificationManagerCompat
     private lateinit var downloadNotification : NotificationCompat.Builder
+    private lateinit var uploadNotification : NotificationCompat.Builder
+    private var isDoingUploadService = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +72,7 @@ class FileActivity : AppCompatActivity() {
         //오른쪽 메뉴 설정
         sideLoginNOut.setOnClickListener {
             if(!DaljinNodeWebLoginData.isAuthenticated) {
-                startLoginActivity()
+                startNewActivity(REQUEST_LOGIN)
             }
             else {
                 DaljinNodeWebLogout(this@FileActivity) {
@@ -131,29 +139,35 @@ class FileActivity : AppCompatActivity() {
         //다운로드 서비스 초기화
         downloadServiceConnection = object : ServiceConnection {
             override fun onServiceDisconnected(name: ComponentName?) {
-                isService = false
+                isDoingDownloadService = false
             }
 
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 downloadServiceServiceBinder = service as DownloadService.DownloadServiceBinder
                 downloadService = downloadServiceServiceBinder.getService()
-                isService = true
+                isDoingDownloadService = true
+            }
+        }
+        uploadServiceConnection = object : ServiceConnection {
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isDoingUploadService = false
+            }
+
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                uploadServiceServiceBinder = service as UploadService.UploadServiceBinder
+                uploadService = uploadServiceServiceBinder.getService()
+                isDoingUploadService = true
             }
         }
 
-        //다운로드 서비스 시작
-        bindService(
-            Intent(this@FileActivity, DownloadService::class.java),
-            downloadServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
+        //다운로드, 업로드 서비스 시작
+        bindService(Intent(this@FileActivity, DownloadService::class.java), downloadServiceConnection, Context.BIND_AUTO_CREATE)
+        bindService(Intent(this@FileActivity , UploadService::class.java), uploadServiceConnection , Context.BIND_AUTO_CREATE)
 
-
-        //알림 매니저 설정
+        //알림 설정
         notificationManager = NotificationManagerCompat.from(this@FileActivity)
-
-        //다운로드 알림 설정
-        downloadNotification = NotificationCompat.Builder(this@FileActivity , "Daljin")
+        downloadNotification = NotificationCompat.Builder(this@FileActivity , NC_DOWNLOAD)
+        uploadNotification = NotificationCompat.Builder(this@FileActivity , NC_UPLOAD)
     }
 
     override fun onStart() {
@@ -204,14 +218,22 @@ class FileActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when(resultCode) {
-            RESULT_LOGIN -> {
+        when(requestCode) {
+            REQUEST_LOGIN-> {
+                when(resultCode) {
+                    RESULT_LOGIN -> {
+
+                    }
+                    RESULT_FINISH -> {
+                        finish()
+                    }
+                }
+            }
+            REQUEST_UPLOAD-> {
 
             }
-            RESULT_FINISH -> {
-                finish()
-            }
         }
+
     }
 
     //하단 메뉴
@@ -282,16 +304,7 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navUpload -> {
-                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
-                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
-
-
-
-
-
-                navBottom.menu.findItem(R.id.navDownload).isCheckable = true
-                navBottom.menu.findItem(R.id.navUpload).isCheckable = true
-                invalidate()
+                startNewActivity(REQUEST_UPLOAD)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
@@ -320,7 +333,7 @@ class FileActivity : AppCompatActivity() {
                     {
                         downloadNotification.setProgress(100 , curProgress , false)
                             .setContentText("${fileSizeConverter(curSize)} / ${fileSizeConverter(totalSize)}")
-                        notificationManager.notify(2 , downloadNotification.build())
+                        notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
                         percentage = curProgress
                     }
                 }
@@ -343,7 +356,7 @@ class FileActivity : AppCompatActivity() {
                     downloadNotification.setContentText("다운로드 완료")
                         .setProgress(0,0,false)
                         .setOngoing(false)
-                    notificationManager.notify(2 , downloadNotification.build())
+                    notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
 
                     navBottom.menu.findItem(R.id.navDownload).isCheckable = true
                     navBottom.menu.findItem(R.id.navUpload).isCheckable = true
@@ -362,7 +375,7 @@ class FileActivity : AppCompatActivity() {
                     .setOnlyAlertOnce(true)
                     .setProgress(100 , 0 , false)
 
-                notificationManager.notify(2 , downloadNotification.build())
+                notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
                 downloadService.startDownload(fileList , downloadPath)
                 return@OnNavigationItemSelectedListener true
             }
@@ -370,8 +383,15 @@ class FileActivity : AppCompatActivity() {
         false
     }
 
-    private fun startLoginActivity() {
-        startActivityForResult(Intent(this@FileActivity, LoginActivity::class.java), 100)
+    private fun startNewActivity(requestCode: Int) {
+        var intent : Intent?  = null
+        when(requestCode) {
+            REQUEST_LOGIN -> intent = Intent(this@FileActivity , LoginActivity::class.java)
+            REQUEST_UPLOAD -> intent = Intent(this@FileActivity , UploadActivity::class.java)
+        }
+        if(intent != null) {
+            startActivityForResult(intent, requestCode)
+        }
     }
 
     private fun invalidate() {
@@ -381,7 +401,7 @@ class FileActivity : AppCompatActivity() {
                 //로그인 NO
                 if(loginBody == null) {
                     loginNOutMenuToogle(false)
-                    startLoginActivity()
+                    startNewActivity(REQUEST_LOGIN)
                 }
                 //로그인 OK
                 else {
@@ -507,7 +527,6 @@ class FileActivity : AppCompatActivity() {
             sideLoginNOut.text = "로그인"
         }
     }
-
 
     private fun checkExternalStorageAvailable() : Boolean{
         when(Environment.getExternalStorageState()) {

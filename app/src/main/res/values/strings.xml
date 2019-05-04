@@ -9,4 +9,5 @@
     <string name="sideLogin">로그인</string>
     <string name="sideLogout">로그아웃</string>
     <string name="sideDownloadSetting">경로설정</string>
+    <string name="title_activity_per">PerActivity</string>
 </resources>
