@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.com.daljin.daljinnasandroid.PerActivity">
+        tools:context="com.daljin.daljinnasandroid.PerActivity">
 
     <android.support.design.widget.AppBarLayout
             android:layout_height="wrap_content"
@@ -13,7 +13,8 @@
             android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+                app:titleTextColor="@color/logobackgroundtext"
+                android:id="@+id/perToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
@@ -21,14 +22,106 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_per"/>
+    <RelativeLayout
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_dialog_email"/>
+
+        <LinearLayout
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+            <LinearLayout
+                    android:layout_margin="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <LinearLayout
+                        android:layout_weight="7"
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:gravity="center"
+                            android:textSize="20dp"
+                            android:fontFamily="@font/alienx"
+                            android:text="인터넷"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_weight="3"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent">
+
+                    <Switch
+                            android:checked="false"
+                            android:trackTint="@drawable/customswitch"
+                            android:id="@+id/internetSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_margin="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <LinearLayout
+                        android:layout_weight="7"
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent">
+
+                    <TextView
+                            android:gravity="center"
+                            android:textSize="20dp"
+                            android:fontFamily="@font/alienx"
+                            android:text="외부저장소"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_weight="3"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent">
+
+                    <Switch
+                            android:checked="false"
+                            android:trackTint="@drawable/customswitch"
+                            android:id="@+id/writeExternalSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+            </LinearLayout>
+
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

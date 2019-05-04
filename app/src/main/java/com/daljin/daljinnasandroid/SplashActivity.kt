@@ -20,7 +20,7 @@ class SplashActivity : AppCompatActivity() {
 
         GlobalScope.launch {
             delay(2000)
-            startActivity(Intent(this@SplashActivity , FileActivity::class.java))
+            startActivity(Intent(this@SplashActivity , PerActivity::class.java))
             finish()
         }
 

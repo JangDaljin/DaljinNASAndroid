@@ -86,19 +86,20 @@ class FileActivity : AppCompatActivity() {
             }
         }
 
+        sideInternalStorage.visibility = View.GONE // 사용안함
         sidePathSetting.setOnCheckedChangeListener{
             group, checkedId ->
             when(checkedId) {
                 R.id.sideExternalStorageStorage -> {
-                    downloadPath = Environment.DIRECTORY_DOWNLOADS
+                    downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
                 }
                 R.id.sideInternalStorage -> {
-                    downloadPath = filesDir.path
-
+                    downloadPath = filesDir.path // 내부메모리(보안영역)
                 }
             }
             getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().putString(SP_KEY_DOWNLOADPATH , downloadPath).commit()
         }
+
 
         sideSaveSetting.setOnCheckedChangeListener {
             group, checkedId ->
@@ -181,10 +182,10 @@ class FileActivity : AppCompatActivity() {
             SAVE_IGNORE -> sideIgnore.isChecked = true
         }
 
-        downloadPath = sharePreference.getString(SP_KEY_DOWNLOADPATH , filesDir.path)
+        downloadPath = sharePreference.getString(SP_KEY_DOWNLOADPATH , Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path)
         when(downloadPath) {
             filesDir.path -> sideInternalStorage.isChecked = true
-            Environment.DIRECTORY_DOWNLOADS -> sideExternalStorageStorage.isChecked = true
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path -> sideExternalStorageStorage.isChecked = true
         }
 
         //외부저장소 사용가능 확인
@@ -230,7 +231,67 @@ class FileActivity : AppCompatActivity() {
                 }
             }
             REQUEST_UPLOAD-> {
+                when(requestCode) {
+                    RESULT_UPLOAD -> {
+                        var totalSize = data!!.getLongExtra("TotalSize" , 0L)
+                        var curSize = 0L
+                        var percentage = 0
 
+                        val fileList = mutableListOf<String>()
+                        val fileArrayList = data?.getStringArrayListExtra("uploadFiles")
+                        if(fileArrayList != null) {
+                            for(i in 0 until fileArrayList.size)
+                            fileList.add(fileArrayList[i])
+                        }
+
+                        if(fileList.isEmpty()) {
+                            return
+                        }
+
+                        navBottom.menu.findItem(R.id.navDownload).isCheckable = false
+                        navBottom.menu.findItem(R.id.navUpload).isCheckable = false
+
+                        uploadService.progressCallback = {
+                            curSize += it
+                            val curProgress = (100L * curSize / totalSize).toInt()
+                            if(percentage < curProgress)
+                            {
+                                uploadNotification.setProgress(100 , curProgress , false)
+                                    .setContentText("${fileSizeConverter(curSize)} / ${fileSizeConverter(totalSize)}")
+                                notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
+                                percentage = curProgress
+                            }
+                        }
+                        uploadService.uploadEndCallback = {
+                            result , msg ->
+                            if(result) {
+                                Thread.sleep(1000) // 푸시 알림 싱크를 위해 1초 후에 종료 알림
+                                uploadNotification.setContentText("업로드 완료")
+                                    .setProgress(0,0,false)
+                                    .setOngoing(false)
+                                notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
+                                Toast.makeText(this@FileActivity , msg , Toast.LENGTH_SHORT).show()
+                                navBottom.menu.findItem(R.id.navDownload).isCheckable = true
+                                navBottom.menu.findItem(R.id.navUpload).isCheckable = true
+                                invalidate()
+                            }
+                        }
+
+                        uploadNotification
+                            .setSmallIcon(R.drawable.uploadicon)
+                            .setContentIntent(PendingIntent.getActivity(this@FileActivity , 200 , Intent(this@FileActivity , FileActivity::class.java) , PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setContentText("대기중")
+                            .setContentTitle("DaljinNAS")
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                            .setOngoing(true)
+                            .setOnlyAlertOnce(true)
+                            .setProgress(100 , 0 , false)
+
+                        notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
+                        uploadService.upload(path , fileList.toList())
+
+                    }
+                }
             }
         }
 
@@ -308,7 +369,6 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                downloadPath = filesDir.path
                 val checkedFileList = fileViewItemList.filter{it.isChecked}
                 val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
 

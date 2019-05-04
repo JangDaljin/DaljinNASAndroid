@@ -14,11 +14,11 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name="com.com.daljin.daljinnasandroid.PerActivity"
-                android:label="@string/title_activity_per"
+                android:name=".PerActivity"
+                android:label="권한체크"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".SingupActivity">
+        <activity android:name=".SignupActivity">
         </activity>
         <activity
                 android:name=".UploadActivity"

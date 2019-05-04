@@ -45,6 +45,19 @@ class DownloadService : Service(){
                     val addZip : String = if(type == "directory") { ".zip" } else { "" }
                     val downloadFileName = "$filename$addZip"
 
+
+                    var pathList = downloadPath.split('/')
+                    var tempPath = "/"
+                    for(i in 1 until pathList.size) {
+                        if(!pathList[i].isNullOrEmpty()) {
+                            tempPath = "$tempPath/${pathList[i]}"
+                        }
+                        val tempFile = File(tempPath)
+                        if(!tempFile.exists()) {
+                            tempFile.mkdir()
+                        }
+                    }
+
                     //파일생성
                     var file = File(downloadPath , downloadFileName)
 
@@ -57,7 +70,6 @@ class DownloadService : Service(){
                             else -> file.delete()
                         }
                     }
-
                     //파일 다운로드 시작
                     file.createNewFile()
                     var inputStream = body.byteStream()

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <item
             android:id="@+id/uploadAllDelete"
             app:showAsAction="never"
             android:title="전체삭제"
     />
     <item
-            android:icon="@drawable/fileicon"
-            android:id="@+id/uploadImage"
+            android:id="@+id/menuSelectFile"
             app:showAsAction="never"
-            android:title="이미지불러오기"
+            android:title="파일불러오기"
     />
 </menu>

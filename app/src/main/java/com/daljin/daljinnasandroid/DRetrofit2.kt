@@ -3,7 +3,6 @@ package com.daljin.daljinnasandroid
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.daljin.daljinnasandroid.SP_NAME
 import okhttp3.*
 import okio.BufferedSink
 import org.json.JSONObject
@@ -15,7 +14,7 @@ import retrofit2.http.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.net.URI
+import java.net.URLEncoder
 
 
 interface DRetrofitInterface {
@@ -53,7 +52,7 @@ interface DRetrofitInterface {
 
     @Multipart
     @POST("/fileUpload")
-    fun upload(@Part("n_upload_path") path : String , @Part("n_upload_files") file : MultipartBody.Part) : Call<String>
+    fun upload(@Part("n_upload_path") path : String , @Part file : MultipartBody.Part) : Call<String>
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -308,30 +307,31 @@ fun DaljinNodeWebSignup(context : Context , ID : String , PW : String , CODE : S
     })
 }
 
-fun DaljinNodeWebUpload(context : Context , uploadPath : String , fileUri : Uri , progressCallback: (Int) -> Unit , uploadEndCallback : (Boolean , String)->Unit) {
-    val file = File(URI(fileUri.toString()))
+fun DaljinNodeWebUpload(context : Context , uploadPath : String , filePathNName : String , progressCallback: ((Int) -> Unit)? = null , uploadEndCallback : ((Boolean , String)->Unit)? = null) {
+    val file = File(filePathNName)
+    val fileUri = Uri.fromFile(file)
     val fileBody = ProgressRequestBody(file, context.contentResolver.getType(fileUri) , progressCallback)
-    val filePart = MultipartBody.Part.createFormData("n_upload_files" , file.name , fileBody)
+    val filePart = MultipartBody.Part.createFormData("n_upload_files" , URLEncoder.encode(file.name , "UTF-8") , fileBody)
 
 
     DRetrofit(context).upload(uploadPath , filePart).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
-            uploadEndCallback.invoke(false , "서버와 연결이 불가합니다.")
+            uploadEndCallback?.invoke(false , "서버와 연결이 불가합니다.")
         }
 
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-                uploadEndCallback.invoke(true , response.body().toString())
+                uploadEndCallback?.invoke(true , response.body().toString())
             }
         }
     })
 }
 
-class ProgressRequestBody(var file : File , var contentType : String ,  var callback : (Int)->Unit) : RequestBody(){
+class ProgressRequestBody(var file : File , var contentType : String? ,  var callback : ((Int)->Unit)?) : RequestBody(){
 
     override fun writeTo(sink: BufferedSink) {
         val fis = FileInputStream(file)
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(8192)
         var read : Int
 
         while(true) {
@@ -342,8 +342,9 @@ class ProgressRequestBody(var file : File , var contentType : String ,  var call
             }
 
             sink.write(buffer , 0 , read)
-            callback.invoke(read)
+            callback?.invoke(read)
         }
+        fis.close()
     }
 
     override fun contentType(): MediaType? = MediaType.parse("$contentType/*")

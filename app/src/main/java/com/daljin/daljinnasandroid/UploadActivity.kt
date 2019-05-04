@@ -2,23 +2,19 @@ package com.daljin.daljinnasandroid
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.ContextMenu
+import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import com.daljin.daljinnasandroid.REQUEST_PICTURE
-import com.daljin.daljinnasandroid.UploadItem
 import kotlinx.android.synthetic.main.activity_upload.*
+import java.io.File
 
 class UploadActivity : AppCompatActivity() {
 
-    private var uploadFileList = mutableListOf<UploadItem>()
+    private var uploadFileList = mutableListOf<File>()
+    private lateinit var uploadViewAdapter : UploadViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,40 +23,48 @@ class UploadActivity : AppCompatActivity() {
         //메뉴바 설정
         setSupportActionBar(uploadToolbar)
 
+        //리사이클러뷰 설정
+        uploadViewAdapter = UploadViewAdapter(uploadFileList) {
+            uploadFileList.removeAt(it)
+            uploadViewAdapter.notifyItemRemoved(it)
+        }
+        uploadRecyclerView.layoutManager = LinearLayoutManager(this@UploadActivity)
+        uploadRecyclerView.adapter = uploadViewAdapter
+        uploadViewAdapter.notifyDataSetChanged()
 
+        //업로드 버튼 클릭
+        uploadButton.setOnClickListener {
+            val returnIntent = Intent()
+            val stringUploadFilePaths = ArrayList<String>()
+            var totalSize = 0L
+            uploadFileList.forEach{
+                stringUploadFilePaths.add(it.path)
+                totalSize += it.length()
+            }
+            returnIntent.putStringArrayListExtra("uploadFiles" , stringUploadFilePaths)
+            returnIntent.putExtra("TotalSize" , totalSize)
+            setResult(RESULT_UPLOAD , returnIntent)
+            finish()
+        }
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when(requestCode) {
-            REQUEST_PICTURE -> {
-
+            REQUEST_FILESELECT -> {
                 when(resultCode) {
                     RESULT_OK -> {
-
-
                         data?.data?.let {
-                            uploadFileList.add(UploadItem(it))
+                            uploadFileList.add(File(DutilJava.getPath(this@UploadActivity , it)))
                         }
 
                         data?.clipData?.let {
                             for(i in 0 until it.itemCount) {
-                                uploadFileList.add(UploadItem(it.getItemAt(i).uri))
+                                uploadFileList.add(File(DutilJava.getPath(this@UploadActivity ,it.getItemAt(i).uri)))
                             }
                         }
-
-
-
-
-
                     }
-
                 }
-
-
+                uploadViewAdapter.notifyDataSetChanged()
             }
-
-
-
         }
     }
 
@@ -71,7 +75,7 @@ class UploadActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when(item?.itemId) {
-            R.id.uploadImage ->{
+            R.id.menuSelectFile ->{
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                     intent.type = "*/*"
@@ -95,7 +99,7 @@ class UploadActivity : AppCompatActivity() {
                     }
 
                     try {
-                        startActivityForResult(chooserIntent, REQUEST_PICTURE);
+                        startActivityForResult(chooserIntent, REQUEST_FILESELECT)
                     } catch (ex : ActivityNotFoundException) {
                         Toast.makeText(this@UploadActivity, "No suitable File Manager was found.", Toast.LENGTH_SHORT).show();
                     }

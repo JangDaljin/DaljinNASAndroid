@@ -17,6 +17,6 @@ class ExampleInstrumentedTestActivity {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("com.example.daljin.daljinnasandroid", appContext.packageName)
+        assertEquals("com.daljin.daljinnasandroid", appContext.packageName)
     }
 }

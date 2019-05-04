@@ -10,7 +10,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class SingupActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity() {
 
     private var ID_isChecked = false
     private var chckedID = ""
@@ -22,22 +22,22 @@ class SingupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_singup)
 
-        val wrongColor = ContextCompat.getColor(this@SingupActivity , R.color.wrong)
-        val rightColor = ContextCompat.getColor(this@SingupActivity , R.color.right)
+        val wrongColor = ContextCompat.getColor(this@SignupActivity , R.color.wrong)
+        val rightColor = ContextCompat.getColor(this@SignupActivity , R.color.right)
 
         singupButtonIDcheck.apply {
             setOnClickListener {
                 thisview ->
-                DaljinNodeWebCheckId(this@SingupActivity, signupEditTextID.text.toString()) {
+                DaljinNodeWebCheckId(this@SignupActivity, signupEditTextID.text.toString()) {
                     if (it) {
                         chckedID = signupEditTextID.text.toString()
                         ID_isChecked = true
                         signupTvID.setTextColor(rightColor)
-                        Toast.makeText(this@SingupActivity, "사용 가능합니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@SignupActivity, "사용 가능합니다.", Toast.LENGTH_SHORT).show()
                     } else {
                         ID_isChecked = false
                         signupTvID.setTextColor(wrongColor)
-                        Toast.makeText(this@SingupActivity, "사용 불가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@SignupActivity, "사용 불가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -163,9 +163,9 @@ class SingupActivity : AppCompatActivity() {
             }
 
             if(ID_isChecked && PW_isChecked && PWCheck_isChecked && CODE_isChecked) {
-                DaljinNodeWebSignup(this@SingupActivity ,signupEditTextID.text.toString() , signupEditTextPW.text.toString() , signupEditTextCode.text.toString()) {
+                DaljinNodeWebSignup(this@SignupActivity ,signupEditTextID.text.toString() , signupEditTextPW.text.toString() , signupEditTextCode.text.toString()) {
                     result , msg ->
-                    Toast.makeText(this@SingupActivity , msg , Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SignupActivity , msg , Toast.LENGTH_SHORT).show()
                     if(result) {
                         GlobalScope.launch {
                             delay(1000)
@@ -175,7 +175,7 @@ class SingupActivity : AppCompatActivity() {
                 }
             }
             else {
-                Toast.makeText(this@SingupActivity , "항목을 확인해주세요" , Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SignupActivity , "항목을 확인해주세요" , Toast.LENGTH_SHORT).show()
             }
         }
 

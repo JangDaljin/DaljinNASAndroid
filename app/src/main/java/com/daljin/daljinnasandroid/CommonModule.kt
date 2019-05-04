@@ -4,16 +4,16 @@ package com.daljin.daljinnasandroid
 //Activity Request
 val REQUEST_LOGIN = 100
 val REQUEST_UPLOAD = 200
-val REQUEST_PICTURE = 300
+val REQUEST_FILESELECT = 300
+val REQUEST_PERM = 1000
 
 //Activity Result
 val RESULT_FINISH = 0
 val RESULT_LOGIN = 100
+val RESULT_UPLOAD = 200
 
 //Permission Request
-val REQUEST_PERM_WE = 1000
-val REQUEST_PERM_RE = 1001
-val REQUEST_PERM_IN = 1002
+
 
 
 //Notification Channel

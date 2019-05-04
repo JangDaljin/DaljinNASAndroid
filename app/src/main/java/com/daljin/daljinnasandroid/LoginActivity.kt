@@ -6,8 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import com.daljin.daljinnasandroid.RESULT_FINISH
-import com.daljin.daljinnasandroid.RESULT_LOGIN
 import kotlinx.android.synthetic.main.activity_login.*
 
 
@@ -62,7 +60,7 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
         btn_Signup.setOnClickListener {
-                startActivity(Intent(this@LoginActivity , SingupActivity::class.java))
+                startActivity(Intent(this@LoginActivity , SignupActivity::class.java))
         }
     }
 
