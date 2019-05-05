@@ -13,13 +13,13 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import com.daljin.daljinnasandroid.*
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsidebody.*
 import kotlinx.android.synthetic.main.rightsideheader.*
@@ -32,11 +32,9 @@ class FileActivity : AppCompatActivity() {
 
     //파일뷰 관련 변수
     private var fileViewItemList = mutableListOf<FileViewItem>()
-    private lateinit var fileViewAdapter: FileViewAdapter
 
     //디렉토리뷰 관련 변수
     private var directoryViewItemList = mutableListOf<DirectoryViewItem>()
-    private lateinit var directoryViewAdapter : DirectoryViewAdapter
 
     //다운로드 관련 변수
     private var downloadPath = ""
@@ -116,15 +114,20 @@ class FileActivity : AppCompatActivity() {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //파일뷰 설정
-        fileView.layoutManager = LinearLayoutManager(this@FileActivity)
-        fileViewAdapter = FileViewAdapter(this@FileActivity , fileViewItemList) {
+        val fileViewLayoutManager = LinearLayoutManager(this@FileActivity)
+        fileView.layoutManager = fileViewLayoutManager
+        fileView.addItemDecoration(DividerItemDecoration(this@FileActivity , fileViewLayoutManager.orientation))
+        fileView.addItemDecoration(RecyclerViewSpace(0,0,0,0))
+        fileView.adapter = FileViewAdapter(this@FileActivity , fileViewItemList) {
 
         }
-        fileView.adapter = fileViewAdapter
 
         //디렉터리뷰 설정
-        directoryView.layoutManager = LinearLayoutManager(this@FileActivity)
-        directoryViewAdapter = DirectoryViewAdapter(this@FileActivity , directoryViewItemList) {
+        val directoryViewLayoutManager = LinearLayoutManager(this@FileActivity)
+        directoryView.layoutManager = directoryViewLayoutManager
+        directoryView.addItemDecoration(DividerItemDecoration(this@FileActivity , directoryViewLayoutManager.orientation))
+        directoryView.addItemDecoration(RecyclerViewSpace(10,10,10,10))
+        directoryView.adapter = DirectoryViewAdapter(this@FileActivity , directoryViewItemList) {
             when(it) {
                 ".." -> {
                     path = path.substringBeforeLast("/")
@@ -135,7 +138,6 @@ class FileActivity : AppCompatActivity() {
             }
             invalidate()
         }
-        directoryView.adapter = directoryViewAdapter
 
         //다운로드 서비스 초기화
         downloadServiceConnection = object : ServiceConnection {
@@ -208,10 +210,10 @@ class FileActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when(item?.itemId) {
             R.id.optionAllCheck -> {
-                fileViewAdapter.changeAllCheck(true)
+                (fileView.adapter as FileViewAdapter).changeAllCheck(true)
             }
             R.id.optionAllNotCheck -> {
-                fileViewAdapter.changeAllCheck(false)
+                (fileView.adapter as FileViewAdapter).changeAllCheck(false)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -288,6 +290,7 @@ class FileActivity : AppCompatActivity() {
                             .setProgress(100 , 0 , false)
 
                         notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
+                        Toast.makeText(this@FileActivity , "${fileSizeConverter(totalSize)} 업로드 시작", Toast.LENGTH_SHORT).show()
                         uploadService.upload(path , fileList.toList())
 
                     }
@@ -527,8 +530,8 @@ class FileActivity : AppCompatActivity() {
 
 
                                     //리사이클러뷰 초기화
-                                    fileViewAdapter.notifyDataSetChanged()
-                                    directoryViewAdapter.notifyDataSetChanged()
+                                    fileView.adapter?.notifyDataSetChanged()
+                                    directoryView.adapter?.notifyDataSetChanged()
                                 }
                             }
                         }
@@ -567,7 +570,8 @@ class FileActivity : AppCompatActivity() {
                 text = fileSizeConverter(DaljinNodeWebLoginData.maxStorage)
                 visibility = View.VISIBLE
             }
-            sideHeaderLogoutText.visibility = View.INVISIBLE
+            sideHeaderUserIcon.visibility = View.VISIBLE
+            sideHeaderLogoutText.visibility = View.GONE
             sideLoginNOut.text = "로그아웃"
         }
         else{
@@ -583,6 +587,8 @@ class FileActivity : AppCompatActivity() {
                 text = "0B"
                 visibility = View.INVISIBLE
             }
+
+            sideHeaderUserIcon.visibility = View.GONE
             sideHeaderLogoutText.visibility = View.VISIBLE
             sideLoginNOut.text = "로그인"
         }

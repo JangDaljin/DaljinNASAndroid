@@ -2,6 +2,7 @@
 <RelativeLayout android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:padding="10dp"
+                android:background="@color/logobackgroundtext"
                 xmlns:android="http://schemas.android.com/apk/res/android">
 
 
@@ -9,8 +10,8 @@
             android:id="@+id/sideHeaderUserIcon"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginRight="10dp"
             android:src="@drawable/usericon"/>
 
@@ -33,6 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="등급"
+                android:textSize="13dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"
                 android:layout_below="@+id/sideHeaderID"
@@ -45,18 +47,19 @@
                 android:id="@+id/sideHeaderMaxStorage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="13dp"
                 android:text="저장공간"
                 android:layout_toRightOf="@+id/sideHeaderUserIcon"
                 android:fontFamily="@font/nanumx"/>
 
         <TextView
+                android:gravity="center"
                 android:id="@+id/sideHeaderLogoutText"
                 android:visibility="gone"
                 android:text="로그인 해주세요"
                 android:fontFamily="@font/ssangmundongx"
-                android:textSize="25dp"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/sideHeaderUserIcon"
+                android:textSize="20dp"
+                android:layout_centerInParent="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

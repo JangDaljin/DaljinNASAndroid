@@ -2,7 +2,6 @@ package com.daljin.daljinnasandroid
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import okhttp3.*
 import okio.BufferedSink
 import org.json.JSONObject
@@ -19,40 +18,39 @@ import java.net.URLEncoder
 
 interface DRetrofitInterface {
     @FormUrlEncoded
-    @POST("/loginNW")
-    fun login(@Field("ID") ID : String , @Field("PW") PW : String) : Call<String>
+    @POST(URL_LOGIN)
+    fun login(@Field(FORM_NAME_LOGIN_ID) ID : String, @Field(FORM_NAME_LOGIN_PW) PW : String) : Call<String>
 
     @FormUrlEncoded
-    @POST("/fileList")
-    fun getFileList(@Field("path") path : String) : Call<String>
+    @POST(URL_FILELIST)
+    fun getFileList(@Field(FORM_NAME_FILELIST_PATH) path : String) : Call<String>
 
-    @POST("/logoutNW")
+    @POST(URL_LOGOUT)
     fun logout() : Call<String>
 
     @FormUrlEncoded
-    @POST("/Download")
-    fun download(@Field("n_itemPath") path : String , @Field("n_downloadItem") downloadItem : String , @Field("n_itemType") type : String) : Call<ResponseBody>
+    @POST(URL_DOWNLOAD)
+    fun download(@Field(FORM_NAME_DOWNLOAD_PATH) path : String, @Field(FORM_NAME_DOWNLOAD_ITEM) downloadItem : String, @Field(FORM_NAME_DOWNLOAD_TYPE) type : String) : Call<ResponseBody>
 
     @FormUrlEncoded
-    @POST("/makeDirectoryNW")
-    fun mkdir(@Field("n_makeDirectory_path") path : String , @Field("n_makeDirectory_Name") name : String) : Call<String>
+    @POST(URL_MKDIR)
+    fun mkdir(@Field(FORM_NAME_MKDIR_PATH) path : String , @Field(FORM_NAME_MKDIR_NAME) name : String) : Call<String>
 
     @FormUrlEncoded
-    @POST("/DeleteNW")
-    fun remove(@Field("n_deletePath") path : String , @Field("n_deleteList") list : String) : Call<String> // list = { i : {type : "" , name : ""} }
+    @POST(URL_DELETE)
+    fun remove(@Field(FORM_NAME_DELETE_PATH) path : String, @Field(FORM_NAME_DELETE_LIST) list : String) : Call<String> // list = { i : {type : "" , name : ""} }
 
     @FormUrlEncoded
-    @POST("/checkid")
-    fun checkId(@Field("ID") ID : String) : Call<String>
+    @POST(URL_CHECKID)
+    fun checkId(@Field(FORM_NAME_CHECKID_ID) ID : String) : Call<String>
 
     @FormUrlEncoded
-    @POST("/adduserNW")
-    fun addUser(@Field("ID") ID : String , @Field("PW") PW : String , @Field("CODE") CODE: String) : Call<String>
-
+    @POST(URL_ADDUSER)
+    fun addUser(@Field(FORM_NAME_ADDUSER_ID) ID : String , @Field(FORM_NAME_ADDUSER_PW) PW : String , @Field(FORM_NAME_ADDUSER_CODE) CODE: String) : Call<String>
 
     @Multipart
-    @POST("/fileUpload")
-    fun upload(@Part("n_upload_path") path : String , @Part file : MultipartBody.Part) : Call<String>
+    @POST(URL_UPLOAD)
+    fun upload(@Part(FORM_NAME_UPLOAD_PATH) path : String , @Part file : MultipartBody.Part) : Call<String>
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -114,11 +112,9 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 
     return Retrofit.Builder()
-        //.baseUrl("http://10.0.2.2:8000")
-        .baseUrl("http://daljin.dlinkddns.com") // 릴리즈 용
+        .baseUrl(SERVER_URL)    // 릴리즈용
         .client(client)
         .addConverterFactory(ScalarsConverterFactory.create())
-        //.addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(DRetrofitInterface::class.java)
 }
@@ -243,7 +239,6 @@ fun DaljinNodeWebRemove(context : Context , path : String , list : List<Pair<Str
     }
     sb.append(" ]")
 
-    Log.d("DALJIN" , sb.toString())
     DRetrofit(context).remove(path , sb.toString()).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             callback.invoke(false)
@@ -311,7 +306,7 @@ fun DaljinNodeWebUpload(context : Context , uploadPath : String , filePathNName 
     val file = File(filePathNName)
     val fileUri = Uri.fromFile(file)
     val fileBody = ProgressRequestBody(file, context.contentResolver.getType(fileUri) , progressCallback)
-    val filePart = MultipartBody.Part.createFormData("n_upload_files" , URLEncoder.encode(file.name , "UTF-8") , fileBody)
+    val filePart = MultipartBody.Part.createFormData("n_upload_files" , URLEncoder.encode(file.name , "UTF-8").replace("+" , "%20") , fileBody) // 인코딩 변환(UTF 8 공백 Java는 '+' 그외 '%20'
 
 
     DRetrofit(context).upload(uploadPath , filePart).enqueue(object : Callback<String> {
@@ -328,7 +323,6 @@ fun DaljinNodeWebUpload(context : Context , uploadPath : String , filePathNName 
 }
 
 class ProgressRequestBody(var file : File , var contentType : String? ,  var callback : ((Int)->Unit)?) : RequestBody(){
-
     override fun writeTo(sink: BufferedSink) {
         val fis = FileInputStream(file)
         val buffer = ByteArray(8192)

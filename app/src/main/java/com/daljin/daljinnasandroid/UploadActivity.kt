@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
@@ -28,8 +29,11 @@ class UploadActivity : AppCompatActivity() {
             uploadFileList.removeAt(it)
             uploadViewAdapter.notifyItemRemoved(it)
         }
-        uploadRecyclerView.layoutManager = LinearLayoutManager(this@UploadActivity)
+        val uploadRecyclerViewLinearLayoutManager = LinearLayoutManager(this@UploadActivity)
+        uploadRecyclerView.layoutManager = uploadRecyclerViewLinearLayoutManager
         uploadRecyclerView.adapter = uploadViewAdapter
+        uploadRecyclerView.addItemDecoration(RecyclerViewSpace(30 , 30 , 30 , 30))
+        uploadRecyclerView.addItemDecoration(DividerItemDecoration(this@UploadActivity , uploadRecyclerViewLinearLayoutManager.orientation))
         uploadViewAdapter.notifyDataSetChanged()
 
         //업로드 버튼 클릭

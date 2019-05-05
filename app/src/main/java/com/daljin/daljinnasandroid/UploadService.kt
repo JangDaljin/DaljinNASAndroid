@@ -25,16 +25,17 @@ class UploadService : Service() {
         if(cnt >= FilePaths.size) {
             return
         }
-
-        if(cnt == FilePaths.size) {
+        if(cnt == FilePaths.size-1) {
             DaljinNodeWebUpload(this@UploadService , uploadPath , FilePaths[cnt] , progressCallback , uploadEndCallback)
         }
         else {
             DaljinNodeWebUpload(this@UploadService , uploadPath , FilePaths[cnt] , progressCallback , {
                 result , msg ->
-                uploadEndCallback?.invoke(result , msg)
                 if(result) {
                     upload(uploadPath , FilePaths  , cnt+1)
+                }
+                else {
+                    uploadEndCallback?.invoke(result , msg)
                 }
             })
         }

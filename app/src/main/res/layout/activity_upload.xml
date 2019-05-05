@@ -33,9 +33,10 @@
                 android:layout_above="@id/uploadButton"/>
 
         <Button
-                android:fontFamily="@font/ssangmundongx"
-                android:textSize="25dp"
-                android:text="UPLOAD"
+                android:layout_margin="5dp"
+                android:fontFamily="@font/alienx"
+                android:textSize="20dp"
+                android:text="업로드 시작"
                 android:layout_alignParentBottom="true"
                 android:id="@+id/uploadButton"
                 android:layout_width="match_parent"

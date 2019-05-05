@@ -65,11 +65,5 @@
               android:layout_marginLeft="5dp"
               android:layout_width="30dp"
               android:layout_height="30dp"/>
-
-    <TextView android:layout_width="match_parent"
-              android:layout_centerHorizontal="true"
-              android:layout_height="1dp"
-              android:layout_below="@+id/fileViewTvDate"
-              android:background="@color/dimgray"/>
 </RelativeLayout>
 

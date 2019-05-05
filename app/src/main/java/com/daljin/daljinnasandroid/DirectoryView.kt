@@ -42,7 +42,7 @@ class DirectoryViewAdapter(context : Context, var items : MutableList<DirectoryV
 
         viewHolder.Layout.apply {
             setOnClickListener {
-                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.clickanim))
+                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.mediumviewclickanim))
                 callback.invoke(viewHolder.tvName.text.toString())
             }
         }

@@ -12,7 +12,7 @@
         <Button
                 android:id="@+id/sideLoginNOut"
                 android:text="로그인"
-                android:textSize="30dp"
+                android:textSize="20dp"
                 android:textColor="#000000"
                 android:gravity="center"
                 android:fontFamily="@font/alienx"
@@ -40,7 +40,7 @@
 
                 <TextView
                         android:text="경로설정"
-                        android:textSize="25dp"
+                        android:textSize="20dp"
                         android:layout_marginBottom="10dp"
                         android:fontFamily="@font/alienx"
                         android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                     <RadioButton
                             android:id="@+id/sideInternalStorage"
                             android:text="내부메모리"
-                            android:textSize="20dp"
+                            android:textSize="15dp"
                             android:layoutDirection="rtl"
                             android:fontFamily="@font/alienx"
                             android:textAlignment="textStart"
@@ -69,7 +69,7 @@
                     <RadioButton
                             android:id="@+id/sideExternalStorageStorage"
                             android:text="외부메모리"
-                            android:textSize="20dp"
+                            android:textSize="15dp"
                             android:layoutDirection="rtl"
                             android:fontFamily="@font/alienx"
                             android:textAlignment="textStart"
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content">
                 <TextView
                         android:text="저장설정"
-                        android:textSize="25dp"
+                        android:textSize="20dp"
                         android:layout_marginBottom="10dp"
                         android:fontFamily="@font/alienx"
                         android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                     <RadioButton
                             android:id="@+id/sideIgnore"
                             android:text="넘어가기"
-                            android:textSize="20dp"
+                            android:textSize="15dp"
                             android:layoutDirection="rtl"
                             android:fontFamily="@font/alienx"
                             android:textAlignment="textStart"
@@ -118,7 +118,7 @@
                     <RadioButton
                             android:id="@+id/sideOverwrite"
                             android:text="덮어쓰기"
-                            android:textSize="20dp"
+                            android:textSize="15dp"
                             android:layoutDirection="rtl"
                             android:fontFamily="@font/alienx"
                             android:textAlignment="textStart"

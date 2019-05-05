@@ -64,7 +64,7 @@ class FileViewAdapter(context : Context, var items : MutableList<FileViewItem>, 
                 item.isChecked = !item.isChecked
                 viewHolder.chbItem.isChecked = item.isChecked
                 viewHolder.chbItem.background = ContextCompat.getDrawable(context , R.drawable.fileviewcheckbox)
-                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.clickanim))
+                it.startAnimation(AnimationUtils.loadAnimation(context , R.anim.largeviewclickanim))
             }
         }
 
