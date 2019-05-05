@@ -57,13 +57,28 @@ class UploadActivity : AppCompatActivity() {
                 when(resultCode) {
                     RESULT_OK -> {
                         data?.data?.let {
-                            uploadFileList.add(File(DutilJava.getPath(this@UploadActivity , it)))
-                        }
-
-                        data?.clipData?.let {
-                            for(i in 0 until it.itemCount) {
-                                uploadFileList.add(File(DutilJava.getPath(this@UploadActivity ,it.getItemAt(i).uri)))
+                            val filepath : String? = DutilJava.getPath(this@UploadActivity , it)
+                            if(filepath.isNullOrEmpty()) {
+                                Toast.makeText(this@UploadActivity , "업로드 할 수 없는 파일입니다." , Toast.LENGTH_SHORT).show()
                             }
+                            else {
+                                uploadFileList.add(File(filepath))
+                            }
+
+                        }
+                        data?.clipData?.let {
+                            var errorCnt = 0
+                            for(i in 0 until it.itemCount) {
+                                val filepath : String? = DutilJava.getPath(this@UploadActivity , it.getItemAt(i).uri)
+                                if(!filepath.isNullOrEmpty()) {
+                                    uploadFileList.add(File(filepath))
+                                }
+                                else {
+                                    errorCnt++
+                                }
+                            }
+                            if(errorCnt != 0)
+                                Toast.makeText(this@UploadActivity , "업로드 불가능한 파일 ${errorCnt}개" , Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
