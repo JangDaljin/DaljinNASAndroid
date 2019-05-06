@@ -62,7 +62,7 @@ class FileActivity : AppCompatActivity() {
 
         //상단 메뉴바
         setSupportActionBar(toolbar)
-
+        
         //하단메뉴바
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
 
@@ -529,7 +529,16 @@ class FileActivity : AppCompatActivity() {
                                     directoryViewItemList.addAll(directoryViewList)
 
 
-                                    //리사이클러뷰 초기화
+                                    if(fileViewItemList.isEmpty()) {
+                                        notfoundLayout.visibility = View.VISIBLE
+                                        fileView.visibility = View.GONE
+                                    }
+                                    else {
+                                        fileView.visibility = View.VISIBLE
+                                        notfoundLayout.visibility = View.GONE
+                                        //리사이클러뷰 초기화
+
+                                    }
                                     fileView.adapter?.notifyDataSetChanged()
                                     directoryView.adapter?.notifyDataSetChanged()
                                 }

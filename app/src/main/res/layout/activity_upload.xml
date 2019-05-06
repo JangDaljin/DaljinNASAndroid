@@ -26,21 +26,56 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/uploadRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@id/uploadButton"/>
 
-        <Button
-                android:layout_margin="5dp"
-                android:fontFamily="@font/alienx"
-                android:textSize="20dp"
-                android:text="업로드 시작"
-                android:layout_alignParentBottom="true"
-                android:id="@+id/uploadButton"
+        <RelativeLayout
+                android:id="@+id/addedLayout"
+                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/uploadRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@id/uploadButton"/>
+
+            <Button
+                    android:layout_margin="5dp"
+                    android:fontFamily="@font/alienx"
+                    android:textSize="20dp"
+                    android:text="업로드 시작"
+                    android:layout_alignParentBottom="true"
+                    android:id="@+id/uploadButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+                android:id="@+id/notAddedLayout"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+
+            <ImageView
+                    android:layout_gravity="center"
+                    android:src="@drawable/clickicon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"/>
+
+            <TextView
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/alienx"
+                    android:textSize="20dp"
+                    android:text="파일을 선택해주세요."
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+
 
 
 
