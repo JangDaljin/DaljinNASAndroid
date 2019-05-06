@@ -98,17 +98,7 @@ class UploadActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        if(uploadFileList.isEmpty()) {
-            addedLayout.visibility = View.GONE
-            notAddedLayout.visibility = View.VISIBLE
-        }
-        else {
-            addedLayout.visibility = View.VISIBLE
-            notAddedLayout.visibility = View.GONE
-        }
-
-        uploadRecyclerView.adapter?.notifyDataSetChanged()
+        invalidate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -147,9 +137,23 @@ class UploadActivity : AppCompatActivity() {
                 }
             }
             R.id.uploadAllDelete -> {
-                uploadRecyclerView.adapter?.notifyDataSetChanged()
+                uploadFileList.clear()
+                invalidate()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun invalidate() {
+        if(uploadFileList.isEmpty()) {
+            addedLayout.visibility = View.GONE
+            notAddedLayout.visibility = View.VISIBLE
+        }
+        else {
+            addedLayout.visibility = View.VISIBLE
+            notAddedLayout.visibility = View.GONE
+        }
+
+        uploadRecyclerView.adapter?.notifyDataSetChanged()
     }
 }

@@ -62,7 +62,7 @@ class FileActivity : AppCompatActivity() {
 
         //상단 메뉴바
         setSupportActionBar(toolbar)
-        
+
         //하단메뉴바
         navBottom.setOnNavigationItemSelectedListener(bottomNavigationItemSelectedListener)
 
