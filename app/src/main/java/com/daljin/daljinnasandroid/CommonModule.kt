@@ -4,8 +4,15 @@ package com.daljin.daljinnasandroid
 //Activity Request
 const val REQUEST_LOGIN = 100
 const val REQUEST_UPLOAD = 200
-const val REQUEST_FILESELECT = 300
+const val EXTRA_UPLOAD_TOTALSIZE = "UPLOAD_TOTAL_SIZE"
+const val EXTRA_UPLOAD_FILES = "UPLOAD_FILES"
+const val EXTRA_DOWNLOAD_TOTALSIZE = "DOWNLOAD_TOTAL_SIZE"
+const val REUPLOADLIST = "REUPLOADLIST"
+const val REUPLOADERRORMSG = "REUPLOADERRORMSG"
+const val REQUEST_FILESELECT = 400
 const val REQUEST_PERM = 1000
+const val REQUEST_PENDING = 9999
+
 
 //Activity Result
 const val RESULT_FINISH = 0
@@ -35,8 +42,8 @@ const val SAVE_IGNORE = 2
 
 
 //DaljinNodeWebServer
-const val SERVER_URL = "http://daljin.dlinkddns.com" // RELEASE
-//const val SERVER_URL = "http://10.0.2.2:8000"      // TEST
+//const val SERVER_URL = "http://daljin.dlinkddns.com" // RELEASE
+const val SERVER_URL = "http://10.0.2.2:8000"      // TEST
 
 const val URL_LOGIN ="/login"
 const val FORM_NAME_LOGIN_ID = "ID"

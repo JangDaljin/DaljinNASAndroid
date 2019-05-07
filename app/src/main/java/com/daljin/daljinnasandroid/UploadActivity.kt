@@ -24,6 +24,17 @@ class UploadActivity : AppCompatActivity() {
         //메뉴바 설정
         setSupportActionBar(uploadToolbar)
 
+
+        intent.getStringArrayListExtra(REUPLOADLIST)?.let {
+            it.forEach{
+                uploadPath ->
+                uploadFileList.add(File(uploadPath))
+            }
+        }
+        intent.getStringExtra(REUPLOADERRORMSG)?.let {
+                Toast.makeText(this@UploadActivity , it , Toast.LENGTH_LONG).show()
+        }
+
         //리사이클러뷰 설정
         val uploadRecyclerViewLinearLayoutManager = LinearLayoutManager(this@UploadActivity)
         uploadRecyclerView.layoutManager = uploadRecyclerViewLinearLayoutManager
@@ -44,8 +55,8 @@ class UploadActivity : AppCompatActivity() {
                 stringUploadFilePaths.add(it.path)
                 totalSize += it.length()
             }
-            returnIntent.putStringArrayListExtra("uploadFiles" , stringUploadFilePaths)
-            returnIntent.putExtra("TotalSize" , totalSize)
+            returnIntent.putStringArrayListExtra(EXTRA_UPLOAD_FILES , stringUploadFilePaths)
+            returnIntent.putExtra(EXTRA_UPLOAD_TOTALSIZE , totalSize)
             setResult(RESULT_UPLOAD , returnIntent)
             finish()
         }

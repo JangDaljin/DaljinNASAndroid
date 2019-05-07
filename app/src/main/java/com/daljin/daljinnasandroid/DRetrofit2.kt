@@ -316,7 +316,8 @@ fun DaljinNodeWebUpload(context : Context , uploadPath : String , filePathNName 
 
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-                uploadEndCallback?.invoke(true , response.body().toString())
+                var parser = JSONObject(response.body())
+                uploadEndCallback?.invoke(!parser.getBoolean("error") , parser.getString("msg"))
             }
         }
     })

@@ -202,6 +202,12 @@ class FileActivity : AppCompatActivity() {
         invalidate()
     }
 
+    override fun onDestroy() {
+        unbindService(downloadServiceConnection)
+        unbindService(uploadServiceConnection)
+        super.onDestroy()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.optionmenu , menu)
         return true
@@ -235,31 +241,28 @@ class FileActivity : AppCompatActivity() {
             REQUEST_UPLOAD-> {
                 when(resultCode) {
                     RESULT_UPLOAD -> {
-                        var totalSize = data!!.getLongExtra("TotalSize" , 0L)
-                        var curSize = 0L
                         var percentage = 0
 
-                        val fileList = mutableListOf<String>()
-                        val fileArrayList = data.getStringArrayListExtra("uploadFiles")
-                        if(fileArrayList != null) {
-                            for(i in 0 until fileArrayList.size)
-                            fileList.add(fileArrayList[i])
+                        //형태 변환(ArrayList -> mutableList)
+                        val uploadFileList = mutableListOf<String>()
+                        val uploadFileArrayList = data?.getStringArrayListExtra(EXTRA_UPLOAD_FILES)
+                        if(uploadFileArrayList != null) {
+                            for(i in 0 until uploadFileArrayList.size)
+                            uploadFileList.add(uploadFileArrayList[i])
                         }
 
-                        if(fileList.isEmpty()) {
+                        //넘어온 데이터 없으면 아무일도 안함
+                        if(uploadFileList.isEmpty()) {
                             return
                         }
 
-                        navBottom.menu.findItem(R.id.navDownload).isCheckable = false
-                        navBottom.menu.findItem(R.id.navUpload).isCheckable = false
-
                         uploadService.progressCallback = {
-                            curSize += it
-                            val curProgress = (100L * curSize / totalSize).toInt()
+                            uploadSize , totalSize ->
+                            val curProgress = (100L * uploadSize / totalSize).toInt()
                             if(percentage < curProgress)
                             {
                                 uploadNotification.setProgress(100 , curProgress , false)
-                                    .setContentText("${fileSizeConverter(curSize)} / ${fileSizeConverter(totalSize)}")
+                                    .setContentText("${fileSizeConverter(uploadSize)} / ${fileSizeConverter(totalSize)}")
                                 notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
                                 percentage = curProgress
                             }
@@ -271,17 +274,31 @@ class FileActivity : AppCompatActivity() {
                                 uploadNotification.setContentText("업로드 완료")
                                     .setProgress(0,0,false)
                                     .setOngoing(false)
+                                    .setAutoCancel(true)
                                 notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
                                 Toast.makeText(this@FileActivity , msg , Toast.LENGTH_SHORT).show()
-                                navBottom.menu.findItem(R.id.navDownload).isCheckable = true
-                                navBottom.menu.findItem(R.id.navUpload).isCheckable = true
                                 invalidate()
                             }
+                        }
+                        uploadService.errorCallback = {
+                            errorFilePathArrayList , errorMsg ->
+                            Thread.sleep(1000) // 푸시 알림 싱크를 위해 1초 후에 종료 알림
+                            uploadNotification.setContentText("업로드 에러발생")
+                                .setProgress(0,0,false)
+                                .setOngoing(false)
+                                .setAutoCancel(true)
+                            notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
+
+
+                            val intent = Intent(this@FileActivity , UploadActivity::class.java)
+                            intent.putStringArrayListExtra(REUPLOADLIST , errorFilePathArrayList)
+                            intent.putExtra(REUPLOADERRORMSG , errorMsg)
+                            startActivityForResult(intent, REQUEST_UPLOAD)
                         }
 
                         uploadNotification
                             .setSmallIcon(R.drawable.uploadicon)
-                            .setContentIntent(PendingIntent.getActivity(this@FileActivity , 200 , Intent(this@FileActivity , FileActivity::class.java) , PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setContentIntent(PendingIntent.getActivity(this@FileActivity , REQUEST_PENDING , Intent(this@FileActivity , FileActivity::class.java) , PendingIntent.FLAG_UPDATE_CURRENT))
                             .setContentText("대기중")
                             .setContentTitle("DaljinNAS")
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -290,15 +307,18 @@ class FileActivity : AppCompatActivity() {
                             .setProgress(100 , 0 , false)
 
                         notificationManager.notify(N_UPLOAD_ID , uploadNotification.build())
-                        Toast.makeText(this@FileActivity , "${fileSizeConverter(totalSize)} 업로드 시작", Toast.LENGTH_SHORT).show()
-                        uploadService.upload(path , fileList.toList())
-
+                        uploadService.startUpload(List(uploadFileList.size){UploadInfo(path , uploadFileList[it])} , data?.getLongExtra(EXTRA_UPLOAD_TOTALSIZE , 0L))
                     }
                 }
+            }
+            REQUEST_PENDING -> {
+
             }
         }
 
     }
+
+
 
     //하단 메뉴
     private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -372,30 +392,21 @@ class FileActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navDownload -> {
-                val checkedFileList = fileViewItemList.filter{it.isChecked}
-                val fileList = List(checkedFileList.size) { index -> Pair("$path/${checkedFileList[index].fullname}" , checkedFileList[index].type) }
-
-
-                var totalSize = 0L
-                var curSize = 0L
                 var percentage = 0
-                checkedFileList.forEach{ totalSize += it.size }
+                val checkedFileList = fileViewItemList.filter{it.isChecked}
 
-                if(totalSize == 0L) {
-                    Toast.makeText(this@FileActivity , "사이즈가 0입니다" , Toast.LENGTH_SHORT).show()
+                if(checkedFileList.isEmpty()) {
+                    Toast.makeText(this@FileActivity , "항목을 선택해주세요" , Toast.LENGTH_SHORT).show()
                     return@OnNavigationItemSelectedListener true
                 }
 
-                navBottom.menu.findItem(R.id.navDownload).isCheckable = false
-                navBottom.menu.findItem(R.id.navUpload).isCheckable = false
-
                 downloadService.progressCallback = {
-                    curSize += it
-                    val curProgress = (100L * curSize / totalSize).toInt()
+                    downloadSize , totalSize ->
+                    val curProgress = (100L * downloadSize / totalSize).toInt()
                     if(percentage < curProgress)
                     {
                         downloadNotification.setProgress(100 , curProgress , false)
-                            .setContentText("${fileSizeConverter(curSize)} / ${fileSizeConverter(totalSize)}")
+                            .setContentText("${fileSizeConverter(downloadSize)} / ${fileSizeConverter(totalSize)}")
                         notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
                         percentage = curProgress
                     }
@@ -414,23 +425,23 @@ class FileActivity : AppCompatActivity() {
                 }
 
                 downloadService.downloadEndCallback = {
+
                     Toast.makeText(this@FileActivity , "다운로드 완료" , Toast.LENGTH_SHORT).show()
                     Thread.sleep(1000) // 푸시 알림 싱크를 위해 1초 후에 종료 알림
                     downloadNotification.setContentText("다운로드 완료")
                         .setProgress(0,0,false)
                         .setOngoing(false)
+                        .setAutoCancel(true)
                     notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
 
                     navBottom.menu.findItem(R.id.navDownload).isCheckable = true
                     navBottom.menu.findItem(R.id.navUpload).isCheckable = true
                 }
 
-                //다운로드 시작
-                Toast.makeText(this@FileActivity , "${fileSizeConverter(totalSize)} 다운로드를 시작합니다." , Toast.LENGTH_SHORT).show()
 
                 downloadNotification
                     .setSmallIcon(R.drawable.downloadicon)
-                    .setContentIntent(PendingIntent.getActivity(this@FileActivity , 200 , Intent(this@FileActivity , FileActivity::class.java) , PendingIntent.FLAG_UPDATE_CURRENT))
+                    .setContentIntent(PendingIntent.getActivity(this@FileActivity , REQUEST_PENDING , Intent(this@FileActivity , FileActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
                     .setContentText("대기중")
                     .setContentTitle("DaljinNAS")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -438,8 +449,10 @@ class FileActivity : AppCompatActivity() {
                     .setOnlyAlertOnce(true)
                     .setProgress(100 , 0 , false)
 
+                //다운로드 시작
                 notificationManager.notify(N_DOWNLOAD_ID , downloadNotification.build())
-                downloadService.startDownload(fileList , downloadPath)
+                downloadService.startDownload(List(checkedFileList.size){ DownloadInfo(path , checkedFileList[it].fullname , checkedFileList[it].type , checkedFileList[it].size , downloadPath)})
+                (fileView.adapter as FileViewAdapter).changeAllCheck(false)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -611,8 +624,16 @@ class FileActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if(path.isNullOrEmpty() || path == "/") {
+            super.onBackPressed()
+        }
+        else {
+            path = path.substringBeforeLast('/')
+            invalidate()
+        }
 
-
+    }
 }
 
 

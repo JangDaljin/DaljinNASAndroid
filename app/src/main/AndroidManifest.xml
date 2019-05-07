@@ -34,6 +34,7 @@
             </intent-filter>
         </activity>
         <activity
+                android:launchMode="singleTop"
                 android:name=".FileActivity"
                 android:label="">
         </activity>
