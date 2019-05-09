@@ -24,95 +24,18 @@
         />
 
         <LinearLayout
-
-                android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="horizontal">
-
-            <TextView
-                    android:textColor="@color/logobackgroundtext"
-                    android:text="ID"
-                    android:fontFamily="@font/ssangmundongx"
-                    android:gravity="center"
-                    android:textSize="20dp"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="match_parent"/>
-
-            <EditText
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:textColor="@color/logobackgroundtext"
-                    android:fontFamily="@font/nanumx"
-                    android:id="@+id/edt_ID"
-                    android:layout_width="0dp"
-                    android:layout_weight="8"
-                    android:layout_height="wrap_content"
-                    android:textColorHint="@color/logobackgroundtext2"
-                    android:hint="아이디를 입력하세요"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1"
-                    android:inputType="text"
-            />
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="horizontal">
-
-            <TextView
-                    android:textColor="@color/logobackgroundtext"
-                    android:fontFamily="@font/ssangmundongx"
-                    android:textSize="20dp"
-                    android:text="PW"
-                    android:gravity="center"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="match_parent"/>
-            <EditText
-                    android:maxLines="1"
-                    android:textSize="20dp"
-                    android:gravity="center"
-                    android:textColor="@color/logobackgroundtext"
-                    android:fontFamily="@font/nanumx"
-                    android:id="@+id/edt_PW"
-                    android:layout_width="0dp"
-                    android:layout_weight="8"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:textColorHint="@color/logobackgroundtext2"
-                    android:imeOptions="actionDone"
-                    android:hint="********"/>
-        </LinearLayout>
-
-        <LinearLayout
                 android:layout_marginTop="5dp"
-                android:paddingRight="20dp"
-                android:paddingLeft="20dp"
+                android:paddingRight="30dp"
+                android:paddingLeft="30dp"
                 android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">
 
-            <Button
-                    android:textColor="#000"
-                    android:fontFamily="@font/ssangmundongx"
-                    android:textSize="15dp"
-                    android:id="@+id/btn_Signup"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="SIGN UP"/>
+            <com.nhn.android.naverlogin.ui.view.OAuthLoginButton
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:id="@+id/btn_naverlogin"/>
 
-            <Button
-                    android:fontFamily="@font/ssangmundongx"
-                    android:textSize="15dp"
-                    android:textColor="#000"
-                    android:id="@+id/btn_Login"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="SIGN IN"/>
         </LinearLayout>
 
     </LinearLayout>

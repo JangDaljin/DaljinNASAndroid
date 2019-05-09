@@ -17,9 +17,13 @@ import java.net.URLEncoder
 
 
 interface DRetrofitInterface {
+
     @FormUrlEncoded
-    @POST(URL_LOGIN)
-    fun login(@Field(FORM_NAME_LOGIN_ID) ID : String, @Field(FORM_NAME_LOGIN_PW) PW : String) : Call<String>
+    @POST(URL_NAVER_LOGIN)
+    fun naverlogin(@Field(NAVER_TOKEN) token : String) : Call<String>
+
+    @GET(URL_SESSION_CHECK)
+    fun sessioncheck() : Call<String>
 
     @FormUrlEncoded
     @POST(URL_FILELIST)
@@ -51,6 +55,7 @@ interface DRetrofitInterface {
     @Multipart
     @POST(URL_UPLOAD)
     fun upload(@Part(FORM_NAME_UPLOAD_PATH) path : String , @Part file : MultipartBody.Part) : Call<String>
+
 }
 
 //세션 유지를 위한 쿠키 헤더 추가
@@ -121,14 +126,16 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 
 //연결 관리 데이터
 object DaljinNodeWebLoginData {
-    var id : String = ""
+    var email : String = ""
+    var nickname : String = ""
     var grade : String = ""
     var maxStorage : Long = 0L
     var isAuthenticated = false
 
-    fun Authenticate(id : String = "", grade : String = "" , maxStorage : Long = 0) : Boolean{
-        if(id != "" && grade != "" && maxStorage > 0) {
-            this.id = id
+    fun Authenticate(email : String = "", grade : String = "" , nickname : String = "" , maxStorage : Long = 0) : Boolean{
+        if(email != "" && nickname != "" && grade != "" && maxStorage > 0) {
+            this.email = email
+            this.nickname = nickname
             this.grade = grade
             this.maxStorage = maxStorage
             isAuthenticated = true
@@ -140,16 +147,32 @@ object DaljinNodeWebLoginData {
     }
 
     fun Logout() {
-        id = ""
+        email = ""
+        nickname = ""
         grade = ""
         maxStorage = 0
         isAuthenticated = false
     }
 }
+fun DaljinNodeWebNaverLogin(context : Context , token : String , callback : (Boolean)->Unit) {
 
-//로그인 요청
-fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , callback : (Boolean , String?)-> Unit) {
-    DRetrofit(context).login(ID , PW).enqueue(object : Callback<String> {
+    DRetrofit(context).naverlogin(token).enqueue(object : Callback<String> {
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            callback.invoke(false)
+        }
+        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
+            if(response.isSuccessful) {
+                callback.invoke(true)
+            }
+        }
+    })
+
+}
+
+
+//네이버로그인 요청
+fun DaljinNodeWebSessionCheck(context : Context, callback : (Boolean , String?)-> Unit) {
+    DRetrofit(context).sessioncheck().enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             DaljinNodeWebLoginData.Authenticate()
             callback.invoke(false , null)
@@ -157,14 +180,14 @@ fun DaljinNodeWebLogin(context : Context, ID : String = "", PW : String = "" , c
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
                 val parser = JSONObject(response.body())
-                when(parser.getBoolean("error")){
+                when(parser.getBoolean("result")){
                     true -> {
-                        DaljinNodeWebLoginData.Authenticate()
-                        callback.invoke(true , null)
+                        DaljinNodeWebLoginData.Authenticate(parser.getString("email") , parser.getString("nickname") , parser.getString("grade") , parser.getLong("max_storage"))
+                        callback.invoke(true , response.body())
                     }
                     false -> {
-                        DaljinNodeWebLoginData.Authenticate(parser.getString("id") , parser.getString("grade") , parser.getLong("max_storage"))
-                        callback.invoke(true , response.body())
+                        DaljinNodeWebLoginData.Authenticate()
+                        callback.invoke(true , null)
                     }
                 }
             }

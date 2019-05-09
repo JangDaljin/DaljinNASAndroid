@@ -44,10 +44,10 @@ const val SAVE_IGNORE = 2
 //const val SERVER_URL = "http://daljin.dlinkddns.com" // RELEASE
 const val SERVER_URL = "http://10.0.2.2:8000"      // TEST
 
-const val URL_LOGIN ="/login"
-const val FORM_NAME_LOGIN_ID = "ID"
-const val FORM_NAME_LOGIN_PW = "PW"
+const val URL_NAVER_LOGIN= "/validatetoken"
+const val NAVER_TOKEN = "token"
 
+const val URL_SESSION_CHECK = "/sessioncheck"
 
 const val URL_FILELIST = "/filelist"
 const val FORM_NAME_FILELIST_PATH = "path"

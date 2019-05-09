@@ -471,19 +471,18 @@ class FileActivity : AppCompatActivity() {
     }
 
     private fun invalidate() {
-        DaljinNodeWebLogin(this@FileActivity , "" , "") { loginRes, loginBody ->
+        DaljinNodeWebSessionCheck(this@FileActivity) { loginRes, loginBody ->
             //서버와 통신 OK
             if (loginRes) {
-                //로그인 NO
+                //로그인 안됨
                 if(loginBody == null) {
                     loginNOutMenuToogle(false)
                     startNewActivity(REQUEST_LOGIN)
                 }
-                //로그인 OK
+                //로그인 됨
                 else {
                     //로그인 정보 갱신
                     loginNOutMenuToogle(true)
-
 
                     //파일 요청
                     DaljinNodeWebGetFileList(this@FileActivity, path) { res, body ->
@@ -581,7 +580,7 @@ class FileActivity : AppCompatActivity() {
     private fun loginNOutMenuToogle(login : Boolean) {
         if(login) {
             sideHeaderID.apply {
-                text = DaljinNodeWebLoginData.id
+                text = DaljinNodeWebLoginData.nickname
                 visibility = View.VISIBLE
             }
             sideHeaderGrade.apply {
