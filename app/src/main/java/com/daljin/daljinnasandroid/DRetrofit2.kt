@@ -18,9 +18,8 @@ import java.net.URLEncoder
 
 interface DRetrofitInterface {
 
-    @FormUrlEncoded
-    @POST(URL_NAVER_LOGIN)
-    fun naverlogin(@Field(NAVER_TOKEN) token : String) : Call<String>
+    @GET(URL_NAVER_LOGIN)
+    fun naverlogin(@Query(NAVER_TOKEN) token : String) : Call<String>
 
     @GET(URL_SESSION_CHECK)
     fun sessioncheck() : Call<String>
@@ -128,14 +127,16 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 object DaljinNodeWebLoginData {
     var email : String = ""
     var nickname : String = ""
+    var code : Int = 0
     var grade : String = ""
     var maxStorage : Long = 0L
     var isAuthenticated = false
 
-    fun Authenticate(email : String = "", grade : String = "" , nickname : String = "" , maxStorage : Long = 0) : Boolean{
-        if(email != "" && nickname != "" && grade != "" && maxStorage > 0) {
+    fun Authenticate(email : String = "",  nickname : String = "" , code : Int = 0 , grade : String = "" , maxStorage : Long = 0) : Boolean{
+        if(email != "" && nickname != "" && code !=0  && grade != "" && maxStorage > 0) {
             this.email = email
             this.nickname = nickname
+            this.code = code
             this.grade = grade
             this.maxStorage = maxStorage
             isAuthenticated = true
@@ -149,6 +150,7 @@ object DaljinNodeWebLoginData {
     fun Logout() {
         email = ""
         nickname = ""
+        code = 0
         grade = ""
         maxStorage = 0
         isAuthenticated = false
@@ -158,15 +160,31 @@ fun DaljinNodeWebNaverLogin(context : Context , token : String , callback : (Boo
 
     DRetrofit(context).naverlogin(token).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
+            DaljinNodeWebLoginData.Authenticate()
             callback.invoke(false)
         }
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-                callback.invoke(true)
+                var parser = JSONObject(response.body())
+                when(parser.getBoolean("result")) {
+                    true -> {
+                        DaljinNodeWebLoginData.Authenticate(
+                            parser.getString("email"),
+                            parser.getString("nickname"),
+                            parser.getInt("code"),
+                            parser.getString("grade"),
+                            parser.getLong("max_storage")
+                        )
+                        callback.invoke(true)
+                    }
+                    false -> {
+                        DaljinNodeWebLoginData.Authenticate()
+                        callback.invoke(false)
+                    }
+                }
             }
         }
     })
-
 }
 
 
@@ -182,7 +200,11 @@ fun DaljinNodeWebSessionCheck(context : Context, callback : (Boolean , String?)-
                 val parser = JSONObject(response.body())
                 when(parser.getBoolean("result")){
                     true -> {
-                        DaljinNodeWebLoginData.Authenticate(parser.getString("email") , parser.getString("nickname") , parser.getString("grade") , parser.getLong("max_storage"))
+                        DaljinNodeWebLoginData.Authenticate(parser.getString("email") ,
+                            parser.getString("nickname") ,
+                            parser.getInt("code"),
+                            parser.getString("grade") ,
+                            parser.getLong("max_storage"))
                         callback.invoke(true , response.body())
                     }
                     false -> {

@@ -23,6 +23,9 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_file.*
 import kotlinx.android.synthetic.main.rightsidebody.*
 import kotlinx.android.synthetic.main.rightsideheader.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class FileActivity : AppCompatActivity() {
@@ -567,6 +570,10 @@ class FileActivity : AppCompatActivity() {
             else {
                 loginNOutMenuToogle(false)
                 Toast.makeText(this@FileActivity, "서버와 통신 불가", Toast.LENGTH_SHORT).show()
+                GlobalScope.launch {
+                    delay(1000)
+                    startNewActivity(REQUEST_LOGIN)
+                }
             }
         }
     }
