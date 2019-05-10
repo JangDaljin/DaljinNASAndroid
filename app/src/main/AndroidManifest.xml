@@ -18,7 +18,7 @@
                 android:label="권한체크"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".SignupActivity">
+        <activity android:name=".CodeActivity">
         </activity>
         <activity
                 android:name=".UploadActivity"

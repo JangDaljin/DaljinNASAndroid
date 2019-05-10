@@ -4,6 +4,7 @@ package com.daljin.daljinnasandroid
 //Activity Request
 const val REQUEST_LOGIN = 100
 const val REQUEST_UPLOAD = 200
+const val REQUEST_CODE_UPDATE = 300
 const val EXTRA_UPLOAD_TOTALSIZE = "UPLOAD_TOTAL_SIZE"
 const val EXTRA_UPLOAD_FILES = "UPLOAD_FILES"
 const val REUPLOADLIST = "REUPLOADLIST"
@@ -69,13 +70,8 @@ const val FORM_NAME_DELETE_PATH = "daletePath"
 const val FORM_NAME_DELETE_LIST = "deleteList"
 
 
-const val URL_CHECKID = "/checkid"
-const val FORM_NAME_CHECKID_ID = "ID"
-
-const val URL_ADDUSER = "/adduser"
-const val FORM_NAME_ADDUSER_ID = "ID"
-const val FORM_NAME_ADDUSER_PW ="PW"
-const val FORM_NAME_ADDUSER_CODE ="CODE"
+const val URL_CODEUPADTE = "/codeupdate"
+const val FORM_NAME_CODEUPDATE_CODE ="code"
 
 
 const val URL_UPLOAD = "/upload"

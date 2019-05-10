@@ -44,12 +44,8 @@ interface DRetrofitInterface {
     fun remove(@Field(FORM_NAME_DELETE_PATH) path : String, @Field(FORM_NAME_DELETE_LIST) list : String) : Call<String> // list = { i : {type : "" , name : ""} }
 
     @FormUrlEncoded
-    @POST(URL_CHECKID)
-    fun checkId(@Field(FORM_NAME_CHECKID_ID) ID : String) : Call<String>
-
-    @FormUrlEncoded
-    @POST(URL_ADDUSER)
-    fun addUser(@Field(FORM_NAME_ADDUSER_ID) ID : String , @Field(FORM_NAME_ADDUSER_PW) PW : String , @Field(FORM_NAME_ADDUSER_CODE) CODE: String) : Call<String>
+    @POST(URL_CODEUPADTE)
+    fun codeUpdate(@Field(FORM_NAME_CODEUPDATE_CODE) CODE: String) : Call<String>
 
     @Multipart
     @POST(URL_UPLOAD)
@@ -98,8 +94,10 @@ class AddCookiesInterceptor(val context : Context) : Interceptor {
                  // Preference에 cookies를 넣어주는 작업을 수행
                  val sharedPreferences = context.getSharedPreferences(SP_NAME , Context.MODE_PRIVATE)
                  val editor = sharedPreferences.edit()
-                 editor.putStringSet("Cookie" , cookies)
-                 editor.commit()
+                 editor.apply {
+                     putStringSet("Cookie" , cookies)
+                     commit()
+                 }
              }
          }
          return originalResponse
@@ -127,13 +125,13 @@ fun DRetrofit(context : Context) : DRetrofitInterface
 object DaljinNodeWebLoginData {
     var email : String = ""
     var nickname : String = ""
-    var code : Int = 0
+    var code : String = ""
     var grade : String = ""
     var maxStorage : Long = 0L
     var isAuthenticated = false
 
-    fun Authenticate(email : String = "",  nickname : String = "" , code : Int = 0 , grade : String = "" , maxStorage : Long = 0) : Boolean{
-        if(email != "" && nickname != "" && code !=0  && grade != "" && maxStorage > 0) {
+    fun Authenticate(email : String = "",  nickname : String = "" , code : String = "" , grade : String = "" , maxStorage : Long = 0) : Boolean{
+        if(email != "" && nickname != "" && code != ""  && grade != "" && maxStorage > 0) {
             this.email = email
             this.nickname = nickname
             this.code = code
@@ -150,7 +148,7 @@ object DaljinNodeWebLoginData {
     fun Logout() {
         email = ""
         nickname = ""
-        code = 0
+        code = ""
         grade = ""
         maxStorage = 0
         isAuthenticated = false
@@ -171,7 +169,7 @@ fun DaljinNodeWebNaverLogin(context : Context , token : String , callback : (Boo
                         DaljinNodeWebLoginData.Authenticate(
                             parser.getString("email"),
                             parser.getString("nickname"),
-                            parser.getInt("code"),
+                            parser.getString("code"),
                             parser.getString("grade"),
                             parser.getLong("max_storage")
                         )
@@ -201,10 +199,10 @@ fun DaljinNodeWebSessionCheck(context : Context, callback : (Boolean , String?)-
                 when(parser.getBoolean("result")){
                     true -> {
                         DaljinNodeWebLoginData.Authenticate(parser.getString("email") ,
-                            parser.getString("nickname") ,
-                            parser.getInt("code"),
-                            parser.getString("grade") ,
-                            parser.getLong("max_storage"))
+                        parser.getString("nickname") ,
+                        parser.getString("code"),
+                        parser.getString("grade") ,
+                        parser.getLong("max_storage"))
                         callback.invoke(true , response.body())
                     }
                     false -> {
@@ -318,30 +316,17 @@ fun DaljinNodeWebLogout(context : Context , callback : (Boolean)->Unit) {
     })
 }
 
-fun DaljinNodeWebCheckId(context : Context , ID : String , callback : (Boolean)->Unit) {
-    DRetrofit(context).checkId(ID).enqueue(object :  Callback<String> {
+
+fun DaljinNodeWebCodeUpdate(context : Context , CODE : String , callback : (Boolean)->Unit) {
+    DRetrofit(context).codeUpdate(CODE).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             callback.invoke(false)
         }
 
         override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
             if(response.isSuccessful) {
-                callback.invoke(JSONObject(response.body()).getBoolean("result"))
-            }
-        }
-    })
-}
-
-fun DaljinNodeWebSignup(context : Context , ID : String , PW : String , CODE : String , callback : (Boolean , String)->Unit) {
-    DRetrofit(context).addUser(ID , PW , CODE).enqueue(object : Callback<String> {
-        override fun onFailure(call: Call<String>, t: Throwable) {
-            callback.invoke(false , "서버와 연결 불가")
-        }
-
-        override fun onResponse(call: Call<String>, response: retrofit2.Response<String>) {
-            if(response.isSuccessful) {
                 val parser = JSONObject(response.body())
-                callback.invoke(!parser.getBoolean("error") , parser.getString("msg"))
+                callback.invoke(!parser.getBoolean("error"))
             }
         }
     })

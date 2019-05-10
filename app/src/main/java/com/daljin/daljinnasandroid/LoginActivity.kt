@@ -1,5 +1,6 @@
 package com.daljin.daljinnasandroid
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
@@ -13,11 +14,15 @@ class LoginActivity : AppCompatActivity() {
         if(it) {
             DaljinNodeWebNaverLogin(this@LoginActivity , NaverLoginInfo.accessToken as String) {
                 if(it) {
-                    setResult(RESULT_LOGIN)
-                    finish()
-                }
-                else {
-
+                    if(DaljinNodeWebLoginData.code.isNullOrEmpty()) {
+                        startActivity(Intent(this@LoginActivity , CodeActivity::class.java))
+                        setResult(RESULT_FINISH)
+                        finish()
+                    }
+                    else {
+                        setResult(RESULT_LOGIN)
+                        finish()
+                    }
                 }
             }
         }
