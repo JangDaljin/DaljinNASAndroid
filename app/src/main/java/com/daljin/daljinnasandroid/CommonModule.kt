@@ -40,8 +40,6 @@ const val SAVE_OVERWIRTE = 1
 const val SAVE_IGNORE = 2
 
 
-
-
 //DaljinNodeWebServer
 const val SERVER_URL = "http://daljin.dlinkddns.com" // RELEASE
 //const val SERVER_URL = "http://10.0.2.2:8000"      // TEST
