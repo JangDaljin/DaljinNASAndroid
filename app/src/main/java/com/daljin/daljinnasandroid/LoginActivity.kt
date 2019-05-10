@@ -14,15 +14,8 @@ class LoginActivity : AppCompatActivity() {
         if(it) {
             DaljinNodeWebNaverLogin(this@LoginActivity , NaverLoginInfo.accessToken as String) {
                 if(it) {
-                    if(DaljinNodeWebLoginData.code.isNullOrEmpty()) {
-                        startActivity(Intent(this@LoginActivity , CodeActivity::class.java))
-                        setResult(RESULT_FINISH)
-                        finish()
-                    }
-                    else {
-                        setResult(RESULT_LOGIN)
-                        finish()
-                    }
+                    setResult(RESULT_LOGIN)
+                    finish()
                 }
             }
         }

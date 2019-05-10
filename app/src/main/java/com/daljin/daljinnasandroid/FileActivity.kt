@@ -241,6 +241,16 @@ class FileActivity : AppCompatActivity() {
                     }
                 }
             }
+            REQUEST_CODE_UPDATE -> {
+                when(resultCode) {
+                    RESULT_CODE_UPDATE -> {
+
+                    }
+                    RESULT_FINISH -> {
+                        finish()
+                    }
+                }
+            }
             REQUEST_UPLOAD-> {
                 when(resultCode) {
                     RESULT_UPLOAD -> {
@@ -467,6 +477,7 @@ class FileActivity : AppCompatActivity() {
         when(requestCode) {
             REQUEST_LOGIN -> intent = Intent(this@FileActivity , LoginActivity::class.java)
             REQUEST_UPLOAD -> intent = Intent(this@FileActivity , UploadActivity::class.java)
+            REQUEST_CODE_UPDATE -> intent = Intent(this@FileActivity , CodeActivity::class.java)
         }
         if(intent != null) {
             startActivityForResult(intent, requestCode)
@@ -484,6 +495,10 @@ class FileActivity : AppCompatActivity() {
                 }
                 //로그인 됨
                 else {
+                    if(DaljinNodeWebLoginData.code.isNullOrEmpty()) {
+                        startNewActivity(REQUEST_CODE_UPDATE)
+                        return@DaljinNodeWebSessionCheck
+                    }
                     //로그인 정보 갱신
                     loginNOutMenuToogle(true)
 

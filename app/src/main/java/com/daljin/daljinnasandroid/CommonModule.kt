@@ -18,6 +18,7 @@ const val REQUEST_PENDING = 9999
 const val RESULT_FINISH = 0
 const val RESULT_LOGIN = 100
 const val RESULT_UPLOAD = 200
+const val RESULT_CODE_UPDATE= 300
 
 //Permission Request
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_code.*
@@ -67,7 +68,7 @@ class CodeActivity : AppCompatActivity() {
                         Toast.makeText(this@CodeActivity , "인증 성공" , Toast.LENGTH_SHORT).show()
                         GlobalScope.launch {
                             delay(1000)
-                            startActivity(Intent(this@CodeActivity , FileActivity::class.java))
+                            setResult(RESULT_CODE_UPDATE)
                             finish()
                         }
                     }
@@ -82,9 +83,14 @@ class CodeActivity : AppCompatActivity() {
             }
         }
 
-
-
-
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when(event?.action) {
+            KeyEvent.ACTION_DOWN -> {
+                setResult(RESULT_FINISH)
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }
 

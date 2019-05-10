@@ -130,8 +130,9 @@ object DaljinNodeWebLoginData {
     var maxStorage : Long = 0L
     var isAuthenticated = false
 
-    fun Authenticate(email : String = "",  nickname : String = "" , code : String = "" , grade : String = "" , maxStorage : Long = 0) : Boolean{
-        if(email != "" && nickname != "" && code != ""  && grade != "" && maxStorage > 0) {
+    fun Authenticate(email : String = "",  nickname : String = "" , code : String = "" , grade : String = "" , maxStorage : Long = 0L) : Boolean{
+        //code는 NULL일 수도 있음 maxStorage도 0일 수 있음
+        if(email != "" && nickname != ""  && grade != "") {
             this.email = email
             this.nickname = nickname
             this.code = code
@@ -198,12 +199,14 @@ fun DaljinNodeWebSessionCheck(context : Context, callback : (Boolean , String?)-
                 val parser = JSONObject(response.body())
                 when(parser.getBoolean("result")){
                     true -> {
-                        DaljinNodeWebLoginData.Authenticate(parser.getString("email") ,
+                        DaljinNodeWebLoginData.Authenticate(
+                        parser.getString("email") ,
                         parser.getString("nickname") ,
                         parser.getString("code"),
                         parser.getString("grade") ,
                         parser.getLong("max_storage"))
-                        callback.invoke(true , response.body())
+                        callback.invoke(true , response.body()
+                        )
                     }
                     false -> {
                         DaljinNodeWebLoginData.Authenticate()
