@@ -2,12 +2,17 @@ package com.daljin.daljinnasandroid
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
+import android.support.v4.content.ContextCompat
+import android.util.Log
+import android.widget.Toast
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.jar.Manifest
 
 
 data class DownloadInfo(val serverPath : String , val fileName : String , val fileType : String , val fileSize : Long , val downloadPath : String)
@@ -43,6 +48,7 @@ class DownloadService : Service(){
         if(!isDownloading) {
             downloadNextFile()
         }
+
     }
 
     private fun downloadNextFile() {
@@ -70,14 +76,18 @@ class DownloadService : Service(){
 
                     //다운로드 경로에 폴더 없으면 만들기
                     var pathList = downloadInfo.downloadPath.split('/')
-                    var tempPath = "/"
+                    var tempPath = ""
                     for (i in 1 until pathList.size) {
                         if (!pathList[i].isNullOrEmpty()) {
                             tempPath = "$tempPath/${pathList[i]}"
                         }
                         val tempFile = File(tempPath)
                         if (!tempFile.exists()) {
-                            tempFile.mkdir()
+
+                            if(!tempFile.mkdir()) {
+                                Toast.makeText(this@DownloadService , "${tempFile.path} mkdir error" , Toast.LENGTH_SHORT).show()
+                                return@DaljinNodeWebDownload
+                            }
                         }
                     }
 

@@ -41,6 +41,9 @@ class UploadActivity : AppCompatActivity() {
         uploadRecyclerView.adapter = UploadViewAdapter(uploadFileList) {
             uploadFileList.removeAt(it)
             uploadRecyclerView.adapter?.notifyItemRemoved(it)
+            if(uploadFileList.isEmpty()) {
+                invalidate()
+            }
         }
         uploadRecyclerView.addItemDecoration(RecyclerViewSpace(30 , 30 , 30 , 30))
         uploadRecyclerView.addItemDecoration(DividerItemDecoration(this@UploadActivity , uploadRecyclerViewLinearLayoutManager.orientation))

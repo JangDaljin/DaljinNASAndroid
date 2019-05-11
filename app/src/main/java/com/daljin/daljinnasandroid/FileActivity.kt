@@ -87,18 +87,20 @@ class FileActivity : AppCompatActivity() {
             }
         }
 
-        sideInternalStorage.visibility = View.GONE // 사용안함
         sidePathSetting.setOnCheckedChangeListener{
             group, checkedId ->
             when(checkedId) {
                 R.id.sideExternalStorageStorage -> {
-                    downloadPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+                    downloadPath = "${DutilJava.getExternalSDCardPath()}/DaljinNAS"
                 }
                 R.id.sideInternalStorage -> {
-                    downloadPath = filesDir.path // 내부메모리(보안영역)
+                    downloadPath = "${Environment.getExternalStorageDirectory()}/DaljinNAS"
                 }
             }
-            getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().putString(SP_KEY_DOWNLOADPATH , downloadPath).commit()
+            getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().apply {
+                putString(SP_KEY_DOWNLOADPATH , downloadPath)
+                commit()
+            }
         }
 
 
@@ -112,7 +114,10 @@ class FileActivity : AppCompatActivity() {
                     writingMode = SAVE_IGNORE
                 }
             }
-            getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().putInt(SP_KEY_WRITEMODE , writingMode).commit()
+            getSharedPreferences(SP_NAME , Context.MODE_PRIVATE).edit().apply{
+                putInt(SP_KEY_WRITEMODE , writingMode)
+                commit()
+            }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -187,12 +192,14 @@ class FileActivity : AppCompatActivity() {
             SAVE_IGNORE -> sideIgnore.isChecked = true
         }
 
-        downloadPath = sharePreference.getString(SP_KEY_DOWNLOADPATH , Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path)
+        downloadPath = sharePreference.getString(SP_KEY_DOWNLOADPATH , "${Environment.getExternalStorageDirectory().path}/DaljinNAS")
         when(downloadPath) {
-            filesDir.path -> sideInternalStorage.isChecked = true
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path -> sideExternalStorageStorage.isChecked = true
+            "${Environment.getExternalStorageDirectory().path}/DaljinNAS" -> sideInternalStorage.isChecked = true
+            else -> sideExternalStorageStorage.isChecked = true
         }
 
+        sideExternalStorageStorage.visibility = View.GONE
+        /*
         //외부저장소 사용가능 확인
         if(checkExternalStorageAvailable()) {
             sideExternalStorageStorage.visibility = View.VISIBLE
@@ -201,6 +208,7 @@ class FileActivity : AppCompatActivity() {
             sideInternalStorage.isChecked = true
             sideExternalStorageStorage.visibility = View.GONE
         }
+        */
 
         invalidate()
     }
@@ -260,7 +268,7 @@ class FileActivity : AppCompatActivity() {
                         val uploadFileList = mutableListOf<String>()
                         val uploadFileArrayList = data?.getStringArrayListExtra(EXTRA_UPLOAD_FILES)
                         if(uploadFileArrayList != null) {
-                            for(i in 0 until uploadFileArrayList.size)
+                        for(i in 0 until uploadFileArrayList.size)
                             uploadFileList.add(uploadFileArrayList[i])
                         }
 
@@ -330,8 +338,6 @@ class FileActivity : AppCompatActivity() {
         }
 
     }
-
-
 
     //하단 메뉴
     private val bottomNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -638,11 +644,10 @@ class FileActivity : AppCompatActivity() {
     }
 
     private fun checkExternalStorageAvailable() : Boolean{
-        when(Environment.getExternalStorageState()) {
-            Environment.MEDIA_MOUNTED_READ_ONLY -> return false
-            Environment.MEDIA_MOUNTED -> return true
-            else -> return false
+        DutilJava.getExternalSDCardPath()?.let {
+            return true
         }
+        return false
     }
 
     override fun onBackPressed() {

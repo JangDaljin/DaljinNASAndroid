@@ -44,8 +44,8 @@ interface DRetrofitInterface {
     fun remove(@Field(FORM_NAME_DELETE_PATH) path : String, @Field(FORM_NAME_DELETE_LIST) list : String) : Call<String> // list = { i : {type : "" , name : ""} }
 
     @FormUrlEncoded
-    @POST(URL_CODEUPADTE)
-    fun codeUpdate(@Field(FORM_NAME_CODEUPDATE_CODE) CODE: String) : Call<String>
+    @POST(URL_USER_INFO_UPADTE)
+    fun userInfoUpdate(@Field(FORM_NAME_USER_INFO_UPDATE_NICKNAME) nickname : String , @Field(FORM_NAME_USER_INFO_UPDATE_CODE) code: String) : Call<String>
 
     @Multipart
     @POST(URL_UPLOAD)
@@ -320,8 +320,8 @@ fun DaljinNodeWebLogout(context : Context , callback : (Boolean)->Unit) {
 }
 
 
-fun DaljinNodeWebCodeUpdate(context : Context , CODE : String , callback : (Boolean)->Unit) {
-    DRetrofit(context).codeUpdate(CODE).enqueue(object : Callback<String> {
+fun DaljinNodeWebUserInfoUpdate(context : Context , nickname : String = "" , code : String , callback : (Boolean)->Unit) {
+    DRetrofit(context).userInfoUpdate(nickname , code).enqueue(object : Callback<String> {
         override fun onFailure(call: Call<String>, t: Throwable) {
             callback.invoke(false)
         }

@@ -69,8 +69,9 @@ const val FORM_NAME_DELETE_PATH = "daletePath"
 const val FORM_NAME_DELETE_LIST = "deleteList"
 
 
-const val URL_CODEUPADTE = "/codeupdate"
-const val FORM_NAME_CODEUPDATE_CODE ="code"
+const val URL_USER_INFO_UPADTE = "/userinfoupdate"
+const val FORM_NAME_USER_INFO_UPDATE_CODE ="code"
+const val FORM_NAME_USER_INFO_UPDATE_NICKNAME = "nickname"
 
 
 const val URL_UPLOAD = "/upload"

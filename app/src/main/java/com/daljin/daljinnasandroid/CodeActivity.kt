@@ -62,12 +62,12 @@ class CodeActivity : AppCompatActivity() {
 
         codeSubmit.setOnClickListener {
             if(CODE_isChecked) {
-                DaljinNodeWebCodeUpdate(this@CodeActivity , EdtCode.text.toString()) {
+                DaljinNodeWebUserInfoUpdate(this@CodeActivity , "" , EdtCode.text.toString()) {
                     result->
                     if(result) {
                         Toast.makeText(this@CodeActivity , "인증 성공" , Toast.LENGTH_SHORT).show()
                         GlobalScope.launch {
-                            delay(1000)
+                            delay(500)
                             setResult(RESULT_CODE_UPDATE)
                             finish()
                         }
