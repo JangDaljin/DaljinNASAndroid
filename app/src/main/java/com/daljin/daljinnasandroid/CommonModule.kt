@@ -55,9 +55,9 @@ const val FORM_NAME_FILELIST_PATH = "path"
 const val URL_LOGOUT = "/logout"
 
 const val URL_DOWNLOAD = "/download"
-const val FORM_NAME_DOWNLOAD_PATH = "n_itemPath"
-const val FORM_NAME_DOWNLOAD_ITEM = "n_downloadItem"
-const val FORM_NAME_DOWNLOAD_TYPE = "n_itemType"
+const val FORM_NAME_DOWNLOAD_PATH = "path"
+const val FORM_NAME_DOWNLOAD_ITEM = "item"
+const val FORM_NAME_DOWNLOAD_TYPE = "type"
 
 const val URL_MKDIR = "/mkdir"
 const val FORM_NAME_MKDIR_PATH = "mkdirPath"
@@ -75,5 +75,6 @@ const val FORM_NAME_USER_INFO_UPDATE_NICKNAME = "nickname"
 
 
 const val URL_UPLOAD = "/upload"
-const val FORM_NAME_UPLOAD_PATH = "n_upload_path"
+const val FORM_NAME_UPLOAD_PATH = "path"
+const val FORM_NAME_UPLOAD_FILES = "files"
 

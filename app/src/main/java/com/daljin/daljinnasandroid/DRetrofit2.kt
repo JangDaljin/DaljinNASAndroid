@@ -339,7 +339,7 @@ fun DaljinNodeWebUpload(context : Context , uploadPath : String , filePathNName 
     val file = File(filePathNName)
     val fileUri = Uri.fromFile(file)
     val fileBody = ProgressRequestBody(file, context.contentResolver.getType(fileUri) , progressCallback)
-    val filePart = MultipartBody.Part.createFormData("n_upload_files" , URLEncoder.encode(file.name , "UTF-8").replace("+" , "%20") , fileBody) // 인코딩 변환(UTF 8 공백 Java는 '+' 그외 '%20'
+    val filePart = MultipartBody.Part.createFormData(FORM_NAME_UPLOAD_FILES , URLEncoder.encode(file.name , "UTF-8").replace("+" , "%20") , fileBody) // 인코딩 변환(UTF 8 공백 Java는 '+' 그외 '%20'
 
 
     DRetrofit(context).upload(uploadPath , filePart).enqueue(object : Callback<String> {
