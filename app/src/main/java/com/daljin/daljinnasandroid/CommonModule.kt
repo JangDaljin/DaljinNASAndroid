@@ -49,22 +49,22 @@ const val NAVER_TOKEN = "access_token"
 
 const val URL_SESSION_CHECK = "/sessioncheck"
 
-const val URL_FILELIST = "/filelist"
+const val URL_FILELIST = "/cloud/filelist"
 const val FORM_NAME_FILELIST_PATH = "path"
 
 const val URL_LOGOUT = "/logout"
 
-const val URL_DOWNLOAD = "/download"
+const val URL_DOWNLOAD = "/cloud/download"
 const val FORM_NAME_DOWNLOAD_PATH = "path"
 const val FORM_NAME_DOWNLOAD_ITEM = "item"
 const val FORM_NAME_DOWNLOAD_TYPE = "type"
 
-const val URL_MKDIR = "/mkdir"
+const val URL_MKDIR = "/cloud/mkdir"
 const val FORM_NAME_MKDIR_PATH = "mkdirPath"
 const val FORM_NAME_MKDIR_NAME = "mkdirName"
 
 
-const val URL_DELETE ="/delete"
+const val URL_DELETE ="/cloud/delete"
 const val FORM_NAME_DELETE_PATH = "daletePath"
 const val FORM_NAME_DELETE_LIST = "deleteList"
 
@@ -74,7 +74,7 @@ const val FORM_NAME_USER_INFO_UPDATE_CODE ="code"
 const val FORM_NAME_USER_INFO_UPDATE_NICKNAME = "nickname"
 
 
-const val URL_UPLOAD = "/upload"
+const val URL_UPLOAD = "/cloud/upload"
 const val FORM_NAME_UPLOAD_PATH = "path"
 const val FORM_NAME_UPLOAD_FILES = "files"
 
